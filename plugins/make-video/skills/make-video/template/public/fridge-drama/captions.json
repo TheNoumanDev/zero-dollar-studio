@@ -1,0 +1,560 @@
+[
+  {
+    "text": "Guys...",
+    "startMs": 550,
+    "endMs": 950,
+    "timestampMs": 750,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " I",
+    "startMs": 1110,
+    "endMs": 1230,
+    "timestampMs": 1170,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " just",
+    "startMs": 1230,
+    "endMs": 1410,
+    "timestampMs": 1320,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " heard",
+    "startMs": 1410,
+    "endMs": 1530,
+    "timestampMs": 1470,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " the",
+    "startMs": 1530,
+    "endMs": 1730,
+    "timestampMs": 1630,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " human",
+    "startMs": 1730,
+    "endMs": 1970,
+    "timestampMs": 1850,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " say",
+    "startMs": 1970,
+    "endMs": 2270,
+    "timestampMs": 2120,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " salad",
+    "startMs": 2270,
+    "endMs": 2570,
+    "timestampMs": 2420,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " tonight.",
+    "startMs": 2570,
+    "endMs": 2650,
+    "timestampMs": 2610,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " Relax.",
+    "startMs": 3580,
+    "endMs": 4020,
+    "timestampMs": 3800,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " Technically,",
+    "startMs": 5180,
+    "endMs": 5600,
+    "timestampMs": 5390,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " I'm",
+    "startMs": 5600,
+    "endMs": 5780,
+    "timestampMs": 5690,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " a",
+    "startMs": 5780,
+    "endMs": 6000,
+    "timestampMs": 5890,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " fruit.",
+    "startMs": 6000,
+    "endMs": 6300,
+    "timestampMs": 6150,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " I'm",
+    "startMs": 6460,
+    "endMs": 6800,
+    "timestampMs": 6630,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " safe.",
+    "startMs": 6800,
+    "endMs": 6900,
+    "timestampMs": 6850,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " Tomato.",
+    "startMs": 7650,
+    "endMs": 8070,
+    "timestampMs": 7860,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " You",
+    "startMs": 8170,
+    "endMs": 8410,
+    "timestampMs": 8290,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " are",
+    "startMs": 8410,
+    "endMs": 8630,
+    "timestampMs": 8520,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " in",
+    "startMs": 8630,
+    "endMs": 8950,
+    "timestampMs": 8790,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " every",
+    "startMs": 8950,
+    "endMs": 9270,
+    "timestampMs": 9110,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " salad.",
+    "startMs": 9270,
+    "endMs": 9470,
+    "timestampMs": 9370,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " I",
+    "startMs": 10240,
+    "endMs": 10360,
+    "timestampMs": 10300,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " need",
+    "startMs": 10360,
+    "endMs": 10480,
+    "timestampMs": 10420,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " a",
+    "startMs": 10480,
+    "endMs": 10700,
+    "timestampMs": 10590,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " lawyer.",
+    "startMs": 10700,
+    "endMs": 10880,
+    "timestampMs": 10790,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " You",
+    "startMs": 11430,
+    "endMs": 11530,
+    "timestampMs": 11480,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " need",
+    "startMs": 11530,
+    "endMs": 11990,
+    "timestampMs": 11760,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " a",
+    "startMs": 11990,
+    "endMs": 12120,
+    "timestampMs": 12055,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " dressing.",
+    "startMs": 12120,
+    "endMs": 12250,
+    "timestampMs": 12185,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " Don't.",
+    "startMs": 13140,
+    "endMs": 13140,
+    "timestampMs": 13140,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " What",
+    "startMs": 13880,
+    "endMs": 14040,
+    "timestampMs": 13960,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " about",
+    "startMs": 14040,
+    "endMs": 14280,
+    "timestampMs": 14160,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " you,",
+    "startMs": 14280,
+    "endMs": 14420,
+    "timestampMs": 14350,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " Carrot?",
+    "startMs": 14480,
+    "endMs": 14740,
+    "timestampMs": 14610,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " Me?",
+    "startMs": 15300,
+    "endMs": 15600,
+    "timestampMs": 15450,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " I've",
+    "startMs": 15740,
+    "endMs": 15920,
+    "timestampMs": 15830,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " been",
+    "startMs": 15920,
+    "endMs": 16040,
+    "timestampMs": 15980,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " in",
+    "startMs": 16040,
+    "endMs": 16160,
+    "timestampMs": 16100,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " this",
+    "startMs": 16160,
+    "endMs": 16360,
+    "timestampMs": 16260,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " drawer",
+    "startMs": 16360,
+    "endMs": 16580,
+    "timestampMs": 16470,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " since",
+    "startMs": 16580,
+    "endMs": 16920,
+    "timestampMs": 16750,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " March.",
+    "startMs": 16920,
+    "endMs": 17360,
+    "timestampMs": 17140,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " They",
+    "startMs": 17440,
+    "endMs": 17720,
+    "timestampMs": 17580,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " forgot",
+    "startMs": 17720,
+    "endMs": 17980,
+    "timestampMs": 17850,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " I",
+    "startMs": 17980,
+    "endMs": 18340,
+    "timestampMs": 18160,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " exist.",
+    "startMs": 18340,
+    "endMs": 18580,
+    "timestampMs": 18460,
+    "confidence": null,
+    "speaker": "carrot",
+    "emphasis": false
+  },
+  {
+    "text": " So...",
+    "startMs": 20440,
+    "endMs": 20440,
+    "timestampMs": 20440,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " we're",
+    "startMs": 20440,
+    "endMs": 20440,
+    "timestampMs": 20440,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " fine?",
+    "startMs": 20440,
+    "endMs": 20440,
+    "timestampMs": 20440,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " Everybody,",
+    "startMs": 21880,
+    "endMs": 22360,
+    "timestampMs": 22120,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " HIDE!",
+    "startMs": 22360,
+    "endMs": 22600,
+    "timestampMs": 22480,
+    "confidence": null,
+    "speaker": "tomato",
+    "emphasis": false
+  },
+  {
+    "text": " Stay",
+    "startMs": 23220,
+    "endMs": 23820,
+    "timestampMs": 23520,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " still.",
+    "startMs": 23820,
+    "endMs": 23940,
+    "timestampMs": 23880,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " I'm",
+    "startMs": 24240,
+    "endMs": 24460,
+    "timestampMs": 24350,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " a",
+    "startMs": 24460,
+    "endMs": 24720,
+    "timestampMs": 24590,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " tiny",
+    "startMs": 24720,
+    "endMs": 25160,
+    "timestampMs": 24940,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " tree.",
+    "startMs": 25160,
+    "endMs": 25440,
+    "timestampMs": 25300,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " I'm",
+    "startMs": 25560,
+    "endMs": 25800,
+    "timestampMs": 25680,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " a",
+    "startMs": 25800,
+    "endMs": 26040,
+    "timestampMs": 25920,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " tiny",
+    "startMs": 26040,
+    "endMs": 26500,
+    "timestampMs": 26270,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  },
+  {
+    "text": " tree.",
+    "startMs": 26500,
+    "endMs": 26640,
+    "timestampMs": 26570,
+    "confidence": null,
+    "speaker": "broccoli",
+    "emphasis": false
+  }
+]

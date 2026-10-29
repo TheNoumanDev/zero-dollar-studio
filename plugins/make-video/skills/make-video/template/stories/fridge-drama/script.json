@@ -1,0 +1,90 @@
+{
+  "id": "FridgeDrama",
+  "title": "Fridge Drama",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "characters": {
+    "broccoli": {
+      "name": "Broccoli",
+      "color": "#4CAF50",
+      "exaggeration": 0.7
+    },
+    "tomato": {
+      "name": "Tomato",
+      "color": "#F4433C",
+      "exaggeration": 0.8
+    },
+    "carrot": {
+      "name": "Carrot",
+      "color": "#FF9800",
+      "exaggeration": 0.5
+    }
+  },
+  "lines": [
+    {
+      "speaker": "broccoli",
+      "text": "Guys... I just heard the human say salad tonight.",
+      "pauseAfter": 0.35
+    },
+    {
+      "speaker": "tomato",
+      "text": "Relax. Technically, I'm a fruit. I'm safe.",
+      "pauseAfter": 0.35
+    },
+    {
+      "speaker": "carrot",
+      "text": "Tomato. You are in every salad.",
+      "pauseAfter": 0.6
+    },
+    {
+      "speaker": "tomato",
+      "text": "I need a lawyer.",
+      "pauseAfter": 0.4
+    },
+    {
+      "speaker": "carrot",
+      "text": "You need a dressing.",
+      "pauseAfter": 0.5
+    },
+    {
+      "speaker": "tomato",
+      "text": "Don't.",
+      "pauseAfter": 0.6
+    },
+    {
+      "speaker": "broccoli",
+      "text": "What about you, Carrot?",
+      "pauseAfter": 0.3
+    },
+    {
+      "speaker": "carrot",
+      "text": "Me? I've been in this drawer since March. They forgot I exist.",
+      "pauseAfter": 0.4
+    },
+    {
+      "speaker": "broccoli",
+      "text": "So... we're fine?",
+      "pauseAfter": 1.0,
+      "event": "fridgeOpens"
+    },
+    {
+      "speaker": "tomato",
+      "text": "Everybody, HIDE!",
+      "pauseAfter": 0.3,
+      "event": "hide",
+      "eventAt": "start"
+    },
+    {
+      "speaker": "broccoli",
+      "text": "Stay still. I'm a tiny tree. I'm a tiny tree.",
+      "pauseAfter": 0.5
+    }
+  ],
+  "outro": {
+    "text": "Follow for more fridge drama",
+    "seconds": 3
+  }
+}

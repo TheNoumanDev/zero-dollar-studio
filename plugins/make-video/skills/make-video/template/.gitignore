@@ -1,0 +1,21 @@
+node_modules
+dist
+.DS_Store
+.env
+out
+
+# Downloaded models and Python envs (tools/setup.sh)
+.venv
+tools/models
+tools/soundfonts/*.sf2
+tools/whisper-mlx/.venv
+
+# Generated story audio (re-made by tools/make-story.sh)
+public/*/lines/
+public/*/*.wav
+stories/*/timing.csv
+stories/*/production.jsonl
+stories/*/qa/
+
+# Personal reference media (photos, voice): never commit
+private/

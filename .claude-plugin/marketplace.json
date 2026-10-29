@@ -7,5 +7,12 @@
   "metadata": {
     "description": "Claude Code skills from @0x45.dev for making YouTube videos for $0: make-video, snipshorts, cartoonsmith (coming soon)."
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "make-video",
+      "source": "./plugins/make-video",
+      "description": "Idea → script → voice → captions → music → Remotion render → QA, for $0. Free, local, no API keys.",
+      "category": "media"
+    }
+  ]
 }

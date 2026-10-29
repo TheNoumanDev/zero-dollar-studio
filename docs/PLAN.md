@@ -6,16 +6,42 @@
 |---|---|---|
 | Public repo `TheNoumanDev/zero-dollar-studio` | ✅ live (29 Oct) | [repo](https://github.com/TheNoumanDev/zero-dollar-studio) |
 | `guides/`: CLAUDE, AVATAR, STACK, PIPELINE PDFs | ✅ live | [guides](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/guides) |
-| `.claude-plugin/marketplace.json` (empty `plugins`) | ✅ validates (warning: no plugins yet) | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
+| `.claude-plugin/marketplace.json` | ✅ live (empty); make-video entry added locally, `--strict` passes | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
 | LICENSE (MIT code) + `guides/LICENSE` (CC BY 4.0) | ✅ done | |
-| `make-video` skill | ⏳ not started (release step 2) | |
+| `make-video` skill v0.1 | 🟡 built + tested locally 29 Oct, awaiting your review before push | `plugins/make-video/` |
 | `snipshorts` skill | ⏳ not started (release step 3) | |
 | `cartoonsmith` skill | ⏳ not started (release step 4) | |
-| `THIRD_PARTY_NOTICES.md` | ⏳ ships with the first skill | |
+| `THIRD_PARTY_NOTICES.md` | 🟡 written, ships with make-video | |
 | Awesome-list PRs (ComposioHQ, travisvn, VoltAgent) | ⏳ after the first skill ships | |
 | Hero GIF in README | ⏳ | |
 
 Video link for guides: https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/guides
+
+---
+
+## TODO (work in order; tick when pushed)
+
+**make-video v0.1** (voiced story → captions → music → render → QA, no AI face yet)
+- [x] `plugins/make-video/` with `.claude-plugin/plugin.json` and a README
+- [x] `template/`: a minimal Remotion starter (FridgeDrama example, `_Template`, shared components) with no 0x45.dev, Nouman or Jalebee assets
+- [x] `template/tools/`: voice.py, take_check.py, captions.mjs, music.py, qa.py, prodlog.py, make-story.sh, setup.sh, requirements.txt, scrubbed of personal paths and channel rules
+- [x] No WAVs or weights in git: setup.sh downloads models; voices are Chatterbox's default voice or the user's own recording
+- [x] `SKILL.md` made generic (scaffold step, setup, brief → script → pipeline → QA); channel-specific lessons cut, general lessons moved to `reference/lessons.md`
+- [x] Add to `marketplace.json`; `claude plugin validate --strict` passes
+- [x] Smoke test: scaffold into a temp folder, `npm install`, lint + typecheck, render the example (29 Oct: full run OK, QA FIX only on visual variety in the example)
+- [x] `THIRD_PARTY_NOTICES.md` (Remotion, Chatterbox, Whisper, FluidSynth, GeneralUser GS, ffmpeg, OpenCV)
+- [x] Root README: install lines (demo GIF still to do), "what you need" (macOS Apple Silicon, ~6 GB disk)
+- [ ] Your review, then push + launch video/Short
+
+**make-video v0.1.x:** tune the Fridge Drama example so QA's variety check passes; README demo GIF; optional DeepFilterNet denoise step
+
+**make-video v0.2:** optional AI face step (JoyVASA + LivePortrait, user downloads weights, never InsightFace), `npx skills add` symlink in `skills/`
+
+**snipshorts v0.1:** port `podcast-shorts` (link → vertical Shorts + captions + posting copy); description names OpusClip as the thing it replaces
+
+**cartoonsmith v0.1:** voiced cartoon episodes with recurring characters; launch with a Jalebee TV demo episode
+
+**Launch chores:** hero GIF, awesome-list PRs (ComposioHQ, travisvn, VoltAgent), pin the repo on your GitHub profile, new guide PDFs as they come out (add the PDF plus a row in `guides/README.md`)
 
 ---
 
