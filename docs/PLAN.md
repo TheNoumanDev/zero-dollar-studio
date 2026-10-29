@@ -13,7 +13,7 @@
 | `cartoonsmith` skill v0.1 | ✅ live 30 Oct (add-on to make-video); placeholder-cast episode rendered, QA PASS | [plugins/cartoonsmith](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/cartoonsmith) |
 | `THIRD_PARTY_NOTICES.md` | ✅ live | [notices](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/THIRD_PARTY_NOTICES.md) |
 | Awesome-list PRs (ComposioHQ, travisvn, VoltAgent) | ⏳ after the first skill ships | |
-| Hero GIF in README | ⏳ | |
+| README hero (logo, video, Fridge Drama GIF) | ✅ live 30 Oct | [README](https://github.com/TheNoumanDev/zero-dollar-studio) |
 
 Video link for guides: https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/guides
 
