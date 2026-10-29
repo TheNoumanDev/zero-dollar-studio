@@ -1,0 +1,11 @@
+{
+  "name": "zero-dollar-studio",
+  "owner": {
+    "name": "TheNoumanDev",
+    "url": "https://github.com/TheNoumanDev"
+  },
+  "metadata": {
+    "description": "Claude Code skills from @0x45.dev for making YouTube videos for $0: make-video, snipshorts, cartoonsmith (coming soon)."
+  },
+  "plugins": []
+}
