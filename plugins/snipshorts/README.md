@@ -24,7 +24,7 @@ Then ask Claude Code: *"make Shorts from this podcast: <link>"*. It asks how man
 ## What you need
 
 - A make-video project (macOS on Apple Silicon, Node 20+, Homebrew, ffmpeg; see [make-video](../make-video))
-- [Claude Code](https://claude.com/claude-code), logged in. Moment picking, the edit plan and the post copy call the `claude` CLI on your PATH, so they use your Claude subscription. No API key.
+- A logged-in coding-agent CLI. Moment picking, the edit plan and the post copy call [Claude Code](https://claude.com/claude-code) (`claude`) by default, using your subscription, with no API key. To use another agent, set `SNIPSHORTS_LLM=codex`, `gemini`, or any command that reads a prompt on stdin and prints the reply (for example `ollama run qwen3:14b` for a fully local model).
 - About 1 GB of free disk space for the extra Python packages and the Whisper model, plus room for the source videos
 
 ## What it does
@@ -33,7 +33,7 @@ Then ask Claude Code: *"make Shorts from this podcast: <link>"*. It asks how man
 |---|---|---|
 | Download | [yt-dlp](https://github.com/yt-dlp/yt-dlp): full episode at 720p, then each moment again in 1080p | Unlicense |
 | Transcript | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (Whisper small, CPU), or the platform's own auto-captions | MIT |
-| Moments, edit plan, post copy | Claude Code (`claude -p`, your subscription) | |
+| Moments, edit plan, post copy | Your agent CLI: Claude Code by default (`claude -p`), or Codex, Gemini CLI or a local model | |
 | Speaker tracking | [YuNet](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) face detector on [OpenCV](https://opencv.org): faces, shot cuts, active speaker by mouth motion. No face recognition. | MIT / Apache-2.0 |
 | Name tags (optional) | Clothing colour under each face, matched to people you label once | |
 | Video | [Remotion](https://www.remotion.dev) (React): crop, zooms, captions, graphics, rewind | **Remotion license**, see below |

@@ -9,10 +9,8 @@ Writes podcasts/<slug>/moments.json.
 """
 import argparse
 import json
-import os
-import subprocess
-import sys
 from pathlib import Path
+import llm
 
 PROMPT = """You are a senior short-form video editor who cuts viral YouTube Shorts and Instagram Reels from long podcasts.
 
@@ -122,14 +120,7 @@ TEASER_SCHEMA = {"type": "object", "properties": {
 
 
 def ask_claude(prompt, schema):
-    # Subscription-backed CLI; drop API-key routing so the login is used.
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE_CODE_USE_"))}
-    out = subprocess.run(["claude", "-p", "--output-format", "json", "--json-schema", json.dumps(schema)],
-                         input=prompt, capture_output=True, text=True, env=env, timeout=900)
-    if out.returncode != 0:
-        sys.exit(f"claude failed: {out.stderr[-2000:]}")
-    envelope = json.loads(out.stdout)
-    return envelope.get("structured_output") or json.loads(envelope["result"])
+    return llm.ask(prompt, schema, timeout=900)
 
 
 def add_teaser(folder: Path, index: int, data):

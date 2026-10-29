@@ -6,10 +6,9 @@ Reads public/podcast-shorts/<id>/clip.json, writes public/podcast-shorts/<id>/pl
 Every beat is anchored to a word index, then converted to seconds here, so timing is word-accurate.
 """
 import json
-import os
-import subprocess
 import sys
 from pathlib import Path
+import llm
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -76,13 +75,7 @@ def main():
                 f"Put no graphics before {clip['teaserEnd'] + 1.8:.1f} s; a punch zoom on the teaser's key word is welcome."
                 if clip.get("teaserEnd") else ""),
     )
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE_CODE_USE_"))}
-    out = subprocess.run(["claude", "-p", "--output-format", "json", "--json-schema", json.dumps(SCHEMA)],
-                         input=prompt, capture_output=True, text=True, env=env, timeout=600)
-    if out.returncode != 0:
-        sys.exit(f"claude failed: {out.stderr[-2000:]}")
-    env_json = json.loads(out.stdout)
-    raw = env_json.get("structured_output") or json.loads(env_json["result"])
+    raw = llm.ask(prompt, SCHEMA, timeout=600)
 
     n = len(words)
     # Nothing may cover the hook card, the cold open, or the rewind label after it.

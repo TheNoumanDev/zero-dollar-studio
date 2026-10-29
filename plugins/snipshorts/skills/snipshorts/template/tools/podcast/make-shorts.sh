@@ -19,8 +19,9 @@ step() { printf '\033[36m▶ %s\033[0m\n' "$1"; }
 
 [[ $SLUG =~ ^[a-zA-Z0-9-]+$ ]] || { echo "❌ slug '$SLUG' must use only letters, digits and hyphens (it becomes a Remotion composition id)"; exit 1; }
 [[ -f $FOLDER/source.json && -f $FOLDER/words.json ]] || { echo "❌ $FOLDER needs source.json and words.json"; exit 1; }
-# Moment picking, edit planning and post copy use the logged-in Claude Code CLI (no API key).
-command -v claude >/dev/null || { echo "❌ claude CLI not found on PATH (install Claude Code and log in)"; exit 1; }
+# Moment picking, edit planning and post copy use a logged-in agent CLI (no API key):
+# Claude Code by default; SNIPSHORTS_LLM=codex|gemini|<command> picks another (see llm.py).
+.venv/bin/python -c "import sys; sys.path.insert(0, 'tools/podcast'); import llm; llm.check()" || exit 1
 
 if [[ -z ${SKIP_MOMENTS:-} || ! -f $FOLDER/moments.json ]]; then
   step "Claude picks $COUNT moments"

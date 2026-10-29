@@ -7,7 +7,7 @@ author: TheNoumanDev (https://github.com/TheNoumanDev)
 
 # snipshorts
 
-Turns a long video into vertical Shorts with only free, local tools. The one exception is the thinking: moment picking, the edit plan and the post copy call the logged-in `claude` CLI (your Claude subscription, no API key). Project rules in `AGENTS.md` still apply.
+Turns a long video into vertical Shorts with only free, local tools. The one exception is the thinking: moment picking, the edit plan and the post copy call a logged-in agent CLI (your subscription, no API key): Claude Code by default, or `SNIPSHORTS_LLM=codex`, `gemini` or any command that reads a prompt on stdin (see `tools/podcast/llm.py`). If you are not Claude Code, set `SNIPSHORTS_LLM` to your own CLI before running the pipeline. Project rules in `AGENTS.md` still apply.
 
 > **Always ask first: how many clips?** When the user gives a link or file to clip, ask how many Shorts they want (offer a default from the length, e.g. "5?"). Then pick exactly that many moments and make exactly those. Never choose the count yourself.
 
@@ -15,7 +15,7 @@ Turns a long video into vertical Shorts with only free, local tools. The one exc
 
 snipshorts sits on top of a make-video project.
 
-1. If the current folder has no `tools/make-story.sh`, it isn't a video project yet. Set one up with the **make-video** skill first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio` and `/reload-plugins`, then continue.
+1. If the current folder has no `tools/make-story.sh`, it isn't a video project yet. Set one up with the **make-video** skill first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to install it: in Claude Code `/plugin install make-video@zero-dollar-studio` then `/reload-plugins`; in other agents `npx skills add TheNoumanDev/zero-dollar-studio --skill make-video`.
 2. **Tell the user what snipshorts adds, and wait for their OK:**
 
    | Download | Size | Used for |
@@ -27,7 +27,7 @@ snipshorts sits on top of a make-video project.
 
 3. On their OK, copy this skill's `template/` folder over the project: `cp -R <skill dir>/template/. <project>/`. It only adds files (`tools/podcast/`, `src/compositions/PodcastShort/`, `podcasts/example/`) and never replaces make-video's.
 4. Run `tools/podcast/setup.sh`. It installs the packages, downloads YuNet, registers the `PodcastShorts` folder in `src/Root.tsx` and adds media folders to `.gitignore`. Safe to re-run.
-5. Check `claude --version` works in the shell. The pipeline calls it.
+5. Check the agent CLI the pipeline calls works in the shell: `claude --version` by default, or the one `SNIPSHORTS_LLM` names.
 
 **Rights.** Remind the user once: they need the rights to clip the source (their own show, permission, or a solid fair-use case). Clips of other people's footage can draw copyright claims.
 
@@ -76,14 +76,14 @@ SKIP_MOMENTS=1 RENDER_ONLY=1 …                          # re-render everything
 
 | Step | Tool | Output |
 |---|---|---|
-| Moments | `tools/podcast/moments.py` (Claude) | `podcasts/<slug>/moments.json` |
+| Moments | `tools/podcast/moments.py` (agent CLI) | `podcasts/<slug>/moments.json` |
 | Prep | `tools/podcast/prepare.py` | `public/podcast-shorts/<id>/source.mp4`, `clip.json` |
 | Name tags | `tools/podcast/people.py` (only with `people` refs) | `who` per shot in `clip.json` |
-| Latin captions | `tools/podcast/romanize.py` (Claude, non-English only) | words in `clip.json` |
-| Edit plan | `tools/podcast/plan.py` (Claude) | `public/podcast-shorts/<id>/plan.json` |
+| Latin captions | `tools/podcast/romanize.py` (agent CLI, non-English only) | words in `clip.json` |
+| Edit plan | `tools/podcast/plan.py` (agent CLI) | `public/podcast-shorts/<id>/plan.json` |
 | SFX | `tools/podcast/sfx.py` (synthesised, no samples) | `public/podcast-shorts/<id>/sfx.wav` |
 | Render | Remotion `PodcastShort` (folder "PodcastShorts" in Studio) | `out/podcast-shorts/<slug>/<id>.mp4`, `.sheet.png` |
-| Posting kit | `tools/podcast/post.py` (Claude, `POST=1`) | `out/podcast-shorts/<slug>/ready-to-post/NN-<name>/`: `video.mp4`, `thumbnail.jpg`, `post.md`, `post.json` |
+| Posting kit | `tools/podcast/post.py` (agent CLI, `POST=1`) | `out/podcast-shorts/<slug>/ready-to-post/NN-<name>/`: `video.mp4`, `thumbnail.jpg`, `post.md`, `post.json` |
 
 Clip ids are `<slug>-<n>`. `make-shorts.sh` adds them to `src/compositions/PodcastShort/clips.ts`.
 
@@ -91,7 +91,7 @@ Clip ids are `<slug>-<n>`. `make-shorts.sh` adds them to `src/compositions/Podca
 
 ## 3. What each piece decides
 
-- **moments.py**: hook in the first sentence, self-contained, ends on the payoff, 20-45 s; never intros, subscribe asks or sponsor reads. Claude returns `first_words`/`last_words`, and the script snaps them to word timestamps (`UNSNAPPED` means check the cut by hand). When the payoff comes too late for one take, a moment has `segments` (setup → turn → payoff, middle skipped); the composition flashes and the SFX whooshes at each splice.
+- **moments.py**: hook in the first sentence, self-contained, ends on the payoff, 20-45 s; never intros, subscribe asks or sponsor reads. The agent returns `first_words`/`last_words`, and the script snaps them to word timestamps (`UNSNAPPED` means check the cut by hand). When the payoff comes too late for one take, a moment has `segments` (setup → turn → payoff, middle skipped); the composition flashes and the SFX whooshes at each splice.
 - **Cold open** (on by default): a 2-5 s `teaser` from inside the moment plays first, then a tape rewind ("⏪ HOW IT STARTED") into the story. `--no-teasers` skips it.
 - **prepare.py**: silences over 0.45 s between words shrink to 0.12 s (jump cuts; framing alternates 1.0/1.12 at each cut so they read as edits). Faces come from the YuNet detector every 3rd frame. A shot change is a colour-histogram jump, a whole-frame change, or a face-size change held for 3 samples. A shot with two confident, similar-sized faces for ≥ 60% of it becomes **split** (left person on top). Other shots follow the active speaker (lower-face motion minus head motion). `--retrack` redoes tracking on the existing cut.
 - **plan.py**: every beat is anchored to a word index, so timing is word-accurate. 5-10 zooms (punch/push), 4-7 graphics (kinetic slam, stat, emoji, callout, quote), 8-16 emphasised words, the hook card, and caption `fixes` for misheard words (the original stays in `asr`). The script enforces: nothing over the hook (first 2.6 s) or the rewind, never two graphics at once.

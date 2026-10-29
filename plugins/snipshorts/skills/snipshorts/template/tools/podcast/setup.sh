@@ -30,6 +30,8 @@ echo "▶ Checks"
 .venv/bin/python -c "import faster_whisper; print('faster-whisper ok')"
 .venv/bin/python -c "import cv2; cv2.FaceDetectorYN.create('$YUNET', '', (320, 240)); print('YuNet ok')"
 .venv/bin/yt-dlp --version | sed 's/^/yt-dlp /'
-if command -v claude >/dev/null; then claude --version; else
-  echo "⚠️  claude CLI not on PATH. Moment picking, edit plans and post copy need the logged-in Claude Code CLI."; fi
+LLM=${SNIPSHORTS_LLM:-claude}
+if command -v "${LLM%% *}" >/dev/null; then echo "agent CLI: $LLM"; else
+  echo "⚠️  '${LLM%% *}' not on PATH. Moment picking, edit plans and post copy need a logged-in agent CLI"
+  echo "   (Claude Code by default; set SNIPSHORTS_LLM=codex, gemini or another command)."; fi
 echo "✅ snipshorts ready. Next: write podcasts/<slug>/source.json (see podcasts/example/source.json)."

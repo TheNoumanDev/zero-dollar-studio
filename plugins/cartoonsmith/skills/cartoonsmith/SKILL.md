@@ -11,7 +11,7 @@ Turns a cast of characters into voiced, lip-synced cartoon episodes using only f
 
 ## 0. Set up (once per project)
 
-1. If the current folder has no `tools/make-story.sh`, it isn't a make-video project yet. Use the **make-video** skill to set one up first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio` and `/reload-plugins`, then continue.
+1. If the current folder has no `tools/make-story.sh`, it isn't a make-video project yet. Use the **make-video** skill to set one up first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to install it: in Claude Code `/plugin install make-video@zero-dollar-studio` then `/reload-plugins`; in other agents `npx skills add TheNoumanDev/zero-dollar-studio --skill make-video`.
 2. **Tell the user what cartoonsmith adds, and wait for their OK:**
 
    | Download | Size | When |

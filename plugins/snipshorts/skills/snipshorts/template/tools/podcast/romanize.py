@@ -8,10 +8,9 @@ English words written in another script come back as normal English spelling.
 Uses the logged-in `claude` CLI (no API key).
 """
 import json
-import os
-import subprocess
 import sys
 from pathlib import Path
+import llm
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -39,14 +38,8 @@ def main():
     names = ("Names in this source: " + ", ".join(p["name"] for p in people if p.get("name")) + ".") if people else ""
     n = len(words)
     schema = {"type": "object", "properties": {"words": {"type": "array", "items": {"type": "string"}, "minItems": n, "maxItems": n}}, "required": ["words"]}
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE_CODE_USE_"))}
-    out = subprocess.run(["claude", "-p", "--output-format", "json", "--json-schema", json.dumps(schema)],
-                         input=PROMPT.format(words="\n".join(f"{i} | {w['w']}" for i, w in enumerate(words)), n=n, names=names),
-                         capture_output=True, text=True, env=env, timeout=600)
-    if out.returncode != 0:
-        sys.exit(f"claude failed: {out.stderr[-1500:]}")
-    env_json = json.loads(out.stdout)
-    roman = (env_json.get("structured_output") or json.loads(env_json["result"]))["words"]
+    roman = llm.ask(PROMPT.format(words="\n".join(f"{i} | {w['w']}" for i, w in enumerate(words)), n=n, names=names),
+                    schema, timeout=600)["words"]
     if len(roman) != n:
         sys.exit(f"{clip_id}: got {len(roman)} words for {n}")
     for w, r in zip(words, roman):

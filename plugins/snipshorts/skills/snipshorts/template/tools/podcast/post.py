@@ -7,7 +7,6 @@ post.md (copy-paste ready) and post.json, plus an index ready-to-post/README.md.
 Nothing is uploaded: posting stays a manual, approved step.
 """
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -16,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from postrules import enforce, post_md, prompt_rules  # noqa: E402
+import llm
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -40,16 +40,7 @@ SCHEMA = {"type": "object", "properties": {
 
 
 def ask(prompt):
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE_CODE_USE_"))}
-    claude = shutil.which("claude")
-    if not claude:
-        sys.exit("claude CLI not found on PATH: install Claude Code and log in (https://claude.com/claude-code)")
-    out = subprocess.run([claude, "-p", "--output-format", "json", "--json-schema", json.dumps(SCHEMA)],
-                         input=prompt, capture_output=True, text=True, env=env, timeout=600)
-    if out.returncode != 0:
-        sys.exit(f"claude failed: {out.stderr[-2000:]}")
-    env_json = json.loads(out.stdout)
-    return env_json.get("structured_output") or json.loads(env_json["result"])
+    return llm.ask(prompt, SCHEMA, timeout=600)
 
 
 def slugify(text):

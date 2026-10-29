@@ -1,0 +1,33 @@
+name: Bug report
+description: Something failed or a video came out wrong
+labels: [bug]
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      options: [make-video, snipshorts, cartoonsmith, guides, other]
+    validations: {required: true}
+  - type: input
+    id: version
+    attributes:
+      label: Skill version
+      placeholder: "0.1.3"
+  - type: input
+    id: setup
+    attributes:
+      label: Agent, chip and macOS
+      placeholder: "Claude Code 2.x, M1 Max, macOS 26.1"
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you asked for, what you expected, what you got.
+    validations: {required: true}
+  - type: textarea
+    id: logs
+    attributes:
+      label: Command and output
+      description: The failing command and the last 30 lines of its output, or the QA report.
+      render: shell
