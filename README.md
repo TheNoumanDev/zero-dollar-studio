@@ -57,15 +57,16 @@ Doing the same with paid tools costs about **$50 a month**, and the free tiers s
 ## 🔁 How it works
 
 ```mermaid
-flowchart LR
-  A["💡 Your idea<br>or a podcast link"] --> B["✍️ Script<br>(your agent)"]
-  B --> C["🎙️ Voice<br>Chatterbox"]
-  C --> D["💬 Captions<br>Whisper"]
-  D --> E["🎵 Music + SFX<br>FluidSynth"]
-  E --> F["🎬 Render<br>Remotion"]
-  F --> G{"✅ QA check<br>loudness, sync,<br>frozen frames"}
-  G -- fix --> B
-  G -- pass --> H["📱 MP4 + title,<br>caption, tags"]
+flowchart TB
+  subgraph write ["1 · Write and voice"]
+    direction LR
+    A["💡 Idea or<br>podcast link"] --> B["✍️ Script<br>your agent"] --> C["🎙️ Voice<br>Chatterbox"] --> D["💬 Captions<br>Whisper"]
+  end
+  subgraph make ["2 · Make and check"]
+    direction LR
+    E["🎵 Music + SFX<br>FluidSynth"] --> F["🎬 Render<br>Remotion"] --> G["✅ QA check<br>fails loop back"] --> H["📱 MP4 + title,<br>caption, tags"]
+  end
+  write --> make
 ```
 
 Your coding agent does the thinking: script, fact checks, moment picking, edit plan. Everything else runs on free local tools. A QA step checks every render (loudness, caption sync, frozen or look-alike stretches) before you see it.
