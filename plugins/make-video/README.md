@@ -2,7 +2,7 @@
 
 A Claude Code skill that turns a one-line idea into a finished, checked MP4: script, voice, word-synced captions, music and SFX, Remotion render, loudness master and an automatic QA gate. Everything runs locally and costs $0: no API keys, no credits, no watermark.
 
-It's the pipeline behind [@0x45.dev](https://youtube.com/@0x45.dev).
+Made by [TheNoumanDev](https://github.com/TheNoumanDev). It's the pipeline behind [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA).
 
 ## Install
 
@@ -43,3 +43,7 @@ One command runs the lot: `tools/make-story.sh stories/<slug> <CompositionId>`.
 ## Coming next
 
 v0.2 adds an optional AI talking face (JoyVASA + LivePortrait, without the non-commercial InsightFace models).
+
+## Author
+
+Made by **[TheNoumanDev](https://github.com/TheNoumanDev)** (Nouman), who runs the [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA) YouTube channel, where every video, including the AI host, is made with this skill. Issues and PRs are welcome on [zero-dollar-studio](https://github.com/TheNoumanDev/zero-dollar-studio).

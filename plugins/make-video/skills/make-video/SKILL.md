@@ -2,6 +2,7 @@
 name: make-video
 description: Make a finished social video (YouTube Short, Instagram Reel or YouTube long-form) for $0 with Remotion and local AI tools, from a one-line idea to a checked MP4. It covers script writing, voices (Chatterbox, with optional cloning of your own voice), word-synced captions (Whisper), music and SFX written as code (FluidSynth), rendering and an automatic QA gate. Use when the user asks to make, create or generate a video, reel, short, story or explainer, to turn a topic, script or data into a video, or to set up a free AI video pipeline. Runs locally on macOS (Apple Silicon); no API keys or credits.
 license: MIT
+author: TheNoumanDev (https://github.com/TheNoumanDev)
 ---
 
 # make-video
@@ -139,3 +140,6 @@ More lessons, and how to add your own: [reference/lessons.md](reference/lessons.
 | Music + SFX | 2-5 s |
 | Render 1080×1920, 33 s | ~97 s (~3 s per second of video) |
 | Full pipeline | ~2 min with voice cached; ~4 min from scratch |
+
+---
+make-video is by [TheNoumanDev](https://github.com/TheNoumanDev), from [zero-dollar-studio](https://github.com/TheNoumanDev/zero-dollar-studio). It's the pipeline behind the [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA) YouTube channel.

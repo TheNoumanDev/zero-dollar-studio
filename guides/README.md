@@ -1,6 +1,6 @@
 # Free guides
 
-Short PDF guides from [@0x45.dev](https://youtube.com/@0x45.dev) videos. Comment the keyword under a video, or just grab the PDF here.
+Short PDF guides from [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA) videos. Comment the keyword under a video, or just grab the PDF here.
 
 | Keyword | Guide | From the video |
 |---|---|---|

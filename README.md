@@ -2,7 +2,7 @@
 
 **Make YouTube videos with Claude Code for $0.** Script, cloned voice, captions, music, animation and an AI host, all made by local, free tools and driven by Claude Code skills.
 
-This is the toolkit behind [@0x45.dev](https://youtube.com/@0x45.dev), a channel where every video, including the host, is made this way.
+By **[TheNoumanDev](https://github.com/TheNoumanDev)**. This is the toolkit behind [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA), a channel where every video, including the host, is made this way.
 
 > 🚧 Work in progress: the guides are live, `make-video` is in early release (v0.1), and the other skills are being cleaned up.
 
