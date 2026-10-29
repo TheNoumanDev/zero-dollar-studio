@@ -1,0 +1,6 @@
+# Extra packages for cartoonsmith, installed into make-video's .venv by tools/setup_cartoon.sh.
+pillow                     # HPND. Placeholder cast (make_placeholder_cast.py), sheet splitting
+opencv-python-headless     # Apache-2.0. Already in make-video's requirements; listed so this file stands alone
+# Optional, only for `split_sheet.py --rembg` (white clothes on a white page): MIT code,
+# downloads the isnet-general-use model (DIS, Apache-2.0) on first use.
+#   uv pip install --python .venv/bin/python "rembg[cpu]"

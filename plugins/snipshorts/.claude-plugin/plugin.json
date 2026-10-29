@@ -1,0 +1,14 @@
+{
+  "name": "snipshorts",
+  "displayName": "snipshorts",
+  "description": "Free, open-source OpusClip alternative with no watermark: a podcast or interview link → vertical Shorts with the speaker tracked, word-synced captions, motion graphics, SFX and ready-to-post copy. Local tools; an add-on to make-video.",
+  "version": "0.1.0",
+  "author": {
+    "name": "TheNoumanDev",
+    "url": "https://github.com/TheNoumanDev"
+  },
+  "homepage": "https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/snipshorts",
+  "repository": "https://github.com/TheNoumanDev/zero-dollar-studio",
+  "license": "MIT",
+  "keywords": ["shorts", "reels", "podcast-clips", "opusclip-alternative", "captions", "remotion", "video-clipping", "free"]
+}

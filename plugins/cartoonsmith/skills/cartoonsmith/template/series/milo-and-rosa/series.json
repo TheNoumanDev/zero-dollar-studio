@@ -1,0 +1,29 @@
+{
+  "id": "milo-and-rosa",
+  "title": "Milo & Rosa",
+  "style": "flat 2D cartoon, thick dark outlines, bright flat colours, no shading, no text",
+  "characters": {
+    "milo": {
+      "name": "Milo",
+      "description": "Nervous shop assistant, round face, blue shirt, messy brown hair",
+      "color": "#4FA3E0",
+      "exaggeration": 0.65
+    },
+    "rosa": {
+      "name": "Rosa",
+      "description": "Calm, dry-humoured shop owner, orange shirt, black hair in a bun",
+      "color": "#F07F5A",
+      "exaggeration": 0.4
+    }
+  },
+  "sets": {
+    "shop": {
+      "name": "Corner shop",
+      "description": "Small corner shop: shelves of jars, a wooden counter, a window with a striped awning",
+      "image": null,
+      "wall": "#F6D7A7",
+      "floor": "#B9835A",
+      "accent": "#7FB7BE"
+    }
+  }
+}

@@ -1,16 +1,16 @@
 # Open-source plan and tracker
 
-## Status (updated 29 Oct 2026)
+## Status (updated 30 Oct 2026)
 
 | Item | State | Link |
 |---|---|---|
 | Public repo `TheNoumanDev/zero-dollar-studio` | ✅ live (29 Oct) | [repo](https://github.com/TheNoumanDev/zero-dollar-studio) |
 | `guides/`: CLAUDE, AVATAR, STACK, PIPELINE PDFs | ✅ live | [guides](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/guides) |
-| `.claude-plugin/marketplace.json` | ✅ live with make-video; `--strict` passes | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
+| `.claude-plugin/marketplace.json` | ✅ live with make-video, snipshorts, cartoonsmith; `--strict` passes | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
 | LICENSE (MIT code) + `guides/LICENSE` (CC BY 4.0) | ✅ done | |
 | `make-video` skill v0.1 | ✅ live 29 Oct; `/plugin install` tested from GitHub | [plugins/make-video](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/make-video) |
-| `snipshorts` skill | ⏳ not started (release step 3) | |
-| `cartoonsmith` skill | ⏳ not started (release step 4) | |
+| `snipshorts` skill v0.1 | ✅ live 30 Oct (add-on to make-video); end-to-end Short rendered in test | [plugins/snipshorts](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/snipshorts) |
+| `cartoonsmith` skill v0.1 | ✅ live 30 Oct (add-on to make-video); placeholder-cast episode rendered, QA PASS | [plugins/cartoonsmith](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/cartoonsmith) |
 | `THIRD_PARTY_NOTICES.md` | ✅ live | [notices](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/THIRD_PARTY_NOTICES.md) |
 | Awesome-list PRs (ComposioHQ, travisvn, VoltAgent) | ⏳ after the first skill ships | |
 | Hero GIF in README | ⏳ | |
@@ -39,9 +39,14 @@ Video link for guides: https://github.com/TheNoumanDev/zero-dollar-studio/tree/m
 
 **make-video v0.2:** optional AI face step (JoyVASA + LivePortrait, user downloads weights, never InsightFace), `npx skills add` symlink in `skills/`
 
-**snipshorts v0.1:** port `podcast-shorts` (link → vertical Shorts + captions + posting copy); description names OpusClip as the thing it replaces
+**snipshorts v0.1** ✅ pushed 30 Oct: tools/podcast + PodcastShort, YuNet framing, optional watermark/end card, local ready-to-post folder (no uploads). Reaction avatar, upscaling, covers and MLX transcription left out.
+- [ ] Test the 1080p yt-dlp section fetch, split-screen layout, `romanize.py`, `people.py --label`
+- [ ] v0.2: optional cover maker (rembg) and upscaling
 
-**cartoonsmith v0.1:** voiced cartoon episodes with recurring characters; launch with a Jalebee TV demo episode
+**cartoonsmith v0.1** ✅ pushed 30 Oct: series bible, rigs from your own sheets (split → align), automatic shot edit, Rhubarb lip sync, optional Parler for Indian languages, placeholder cast example. No Sharma/Jalebee art shipped.
+- [ ] Fresh install of Rhubarb, Real-ESRGAN and the `WITH_PARLER=1` venv; render a 9:16 episode, group shots, a second set
+- [ ] Launch with a Jalebee TV demo episode (needs your OK to show that art)
+- [ ] v0.2: body motion (AnimatedDrawings), AI-video inserts
 
 **Launch chores:** hero GIF, awesome-list PRs (ComposioHQ, travisvn, VoltAgent), pin the repo on your GitHub profile, new guide PDFs as they come out (add the PDF plus a row in `guides/README.md`)
 

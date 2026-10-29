@@ -1,0 +1,9 @@
+# Optional Indic Parler-TTS engine (tools/voice_parler.py), in its own venv: tools/parler-venv.
+# Installed by WITH_PARLER=1 tools/setup_cartoon.sh. Versions are the ones it was tested with.
+parler-tts @ git+https://github.com/huggingface/parler-tts.git@d108732cd57788ec86bc857d99a6cabd66663d68   # Apache-2.0
+transformers==4.46.1       # Apache-2.0 (parler-tts needs this exact line)
+torch==2.14.1              # BSD-3-Clause
+torchaudio==2.11.0         # BSD-2-Clause
+deepfilternet==0.5.6       # MIT / Apache-2.0. Denoiser for the Parler takes
+soundfile
+scipy

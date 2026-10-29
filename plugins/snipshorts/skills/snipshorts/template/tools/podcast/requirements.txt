@@ -1,0 +1,6 @@
+# Extra Python packages for snipshorts, on top of make-video's tools/requirements.txt.
+# Installed into the same .venv by tools/podcast/setup.sh.
+faster-whisper      # MIT. Word-level transcripts (tools/podcast/transcribe.py); pulls in CTranslate2 (MIT) and PyAV (BSD-3)
+yt-dlp              # Unlicense. Downloads the source and fetches each moment in 1080p
+numpy
+opencv-python-headless   # Apache-2.0. Face detection (YuNet), shot cuts, clothing colours

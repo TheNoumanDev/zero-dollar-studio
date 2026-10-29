@@ -1,0 +1,50 @@
+{
+  "id": "MiloRosaEp01",
+  "title": "The Shop Cat",
+  "series": "milo-and-rosa",
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "characters": {},
+  "lines": [
+    {
+      "speaker": "milo",
+      "text": "Rosa! The cat is sitting on the cash register again.",
+      "pauseAfter": 0.4,
+      "shot": {
+        "set": "shop"
+      }
+    },
+    {
+      "speaker": "rosa",
+      "text": "Then the cat is in charge today.",
+      "pauseAfter": 0.4,
+      "shot": {
+        "framing": "pose",
+        "pose": "apose"
+      }
+    },
+    {
+      "speaker": "milo",
+      "text": "He just sold a fish to himself.",
+      "pauseAfter": 0.5,
+      "react": {
+        "rosa": "shocked"
+      }
+    },
+    {
+      "speaker": "rosa",
+      "text": "Honestly? Best employee we have.",
+      "pauseAfter": 0.6,
+      "react": {
+        "milo": "laugh"
+      }
+    }
+  ],
+  "outro": {
+    "text": "Follow for more Milo and Rosa",
+    "seconds": 2.5
+  }
+}

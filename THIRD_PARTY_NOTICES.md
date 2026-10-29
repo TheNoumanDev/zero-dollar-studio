@@ -13,6 +13,15 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The tools 
 | [ffmpeg](https://ffmpeg.org) | make-video | LGPL/GPL | Installed by the user (Homebrew). |
 | [OpenCV](https://github.com/opencv/opencv-python) (`opencv-python-headless`) | make-video | Apache-2.0 / MIT | QA frame analysis. |
 | `mido`, `soundfile`, `scipy`, `numpy`, `huggingface_hub`, PyTorch | make-video | MIT / BSD-3-Clause / Apache-2.0 | Python dependencies from PyPI. |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (with CTranslate2, PyAV, Silero VAD) and `Systran/faster-whisper-*` weights | snipshorts | MIT (PyAV: BSD-3-Clause) | Word-level transcripts. Weights download on first use. |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | snipshorts | Unlicense | Fetches the source video. You need the rights to clip it. |
+| [YuNet](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) face detector (OpenCV Zoo) | snipshorts | MIT | Speaker framing only, no face recognition. Downloaded by `tools/podcast/setup.sh`. |
+| [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) | cartoonsmith | MIT (bundled components listed in its LICENSE.md) | Mouth shapes. Downloaded by `tools/setup_cartoon.sh`; the macOS build is x86_64, so Apple Silicon uses Rosetta 2. |
+| [Pillow](https://github.com/python-pillow/Pillow) | cartoonsmith | MIT-CMU (HPND) | Sheet splitting and placeholder art. |
+| [Real-ESRGAN ncnn](https://github.com/xinntao/Real-ESRGAN) and its x4plus models | cartoonsmith (optional) | BSD-3-Clause | Upscaling cut-outs (`WITH_UPSCALE=1`). |
+| [rembg](https://github.com/danielgatis/rembg) with isnet-general-use / U-2-Net | cartoonsmith (optional) | MIT (models Apache-2.0) | Background removal for sheets with white clothes. |
+| [Indic Parler-TTS](https://huggingface.co/ai4bharat/indic-parler-tts) (AI4Bharat), `parler-tts`, flan-t5-large tokenizer | cartoonsmith (optional) | Apache-2.0 | Hindi and other Indian-language voices (`WITH_PARLER=1`). Gated: accept the terms on Hugging Face once. |
+| [DeepFilterNet](https://github.com/Rikorose/DeepFilterNet), descript-audio-codec, transformers, torchaudio | cartoonsmith (optional) | MIT / Apache-2.0 / BSD-2-Clause | Parler environment and denoising. |
 
 ## Not used, on purpose
 

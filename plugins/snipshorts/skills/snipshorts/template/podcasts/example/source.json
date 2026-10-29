@@ -1,0 +1,13 @@
+{
+  "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+  "local": "podcasts/example/source.mp4",
+  "title": "Full title of the episode",
+  "channel": "Channel name",
+  "speakers": "Host A interviews guest B (author of C)",
+  "language": "en",
+  "jumpcut": true,
+  "split": true,
+  "watermark": "",
+  "endCard": null,
+  "people": []
+}

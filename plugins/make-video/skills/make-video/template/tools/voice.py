@@ -269,7 +269,7 @@ for n, line in enumerate(script["lines"]):
         for a in takes:
             audio[: len(a)] += a / len(takes) * 1.6
     elif script["characters"][line["speaker"]].get("engine"):
-        sys.exit(f"Character {line['speaker']} uses engine {script['characters'][line['speaker']]['engine']!r}; this template only ships Chatterbox")
+        sys.exit(f"Character {line['speaker']} uses engine {script['characters'][line['speaker']]['engine']!r}; its line isn't cached yet. For engine 'parler', run tools/voice_parler.py first (cartoonsmith add-on)")
     else:
         spoken, settings, tempo = directed(line, script["characters"][line["speaker"]])
         audio = stretch(speak(spoken, settings), tempo)
