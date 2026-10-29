@@ -6,12 +6,12 @@
 |---|---|---|
 | Public repo `TheNoumanDev/zero-dollar-studio` | ✅ live (29 Oct) | [repo](https://github.com/TheNoumanDev/zero-dollar-studio) |
 | `guides/`: CLAUDE, AVATAR, STACK, PIPELINE PDFs | ✅ live | [guides](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/guides) |
-| `.claude-plugin/marketplace.json` | ✅ live (empty); make-video entry added locally, `--strict` passes | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
+| `.claude-plugin/marketplace.json` | ✅ live with make-video; `--strict` passes | [marketplace.json](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/.claude-plugin/marketplace.json) |
 | LICENSE (MIT code) + `guides/LICENSE` (CC BY 4.0) | ✅ done | |
-| `make-video` skill v0.1 | 🟡 built + tested locally 29 Oct, awaiting your review before push | `plugins/make-video/` |
+| `make-video` skill v0.1 | ✅ live 29 Oct; `/plugin install` tested from GitHub | [plugins/make-video](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/make-video) |
 | `snipshorts` skill | ⏳ not started (release step 3) | |
 | `cartoonsmith` skill | ⏳ not started (release step 4) | |
-| `THIRD_PARTY_NOTICES.md` | 🟡 written, ships with make-video | |
+| `THIRD_PARTY_NOTICES.md` | ✅ live | [notices](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/THIRD_PARTY_NOTICES.md) |
 | Awesome-list PRs (ComposioHQ, travisvn, VoltAgent) | ⏳ after the first skill ships | |
 | Hero GIF in README | ⏳ | |
 
@@ -31,7 +31,9 @@ Video link for guides: https://github.com/TheNoumanDev/zero-dollar-studio/tree/m
 - [x] Smoke test: scaffold into a temp folder, `npm install`, lint + typecheck, render the example (29 Oct: full run OK, QA FIX only on visual variety in the example)
 - [x] `THIRD_PARTY_NOTICES.md` (Remotion, Chatterbox, Whisper, FluidSynth, GeneralUser GS, ffmpeg, OpenCV)
 - [x] Root README: install lines (demo GIF still to do), "what you need" (macOS Apple Silicon, ~6 GB disk)
-- [ ] Your review, then push + launch video/Short
+- [x] Pushed 29 Oct (install from GitHub tested in a clean config)
+- [ ] Fresh-machine test of `tools/setup.sh` (full ~6 GB download)
+- [ ] Launch video + Short ("I open-sourced the skill that makes my videos"), repo link pinned
 
 **make-video v0.1.x:** tune the Fridge Drama example so QA's variety check passes; README demo GIF; optional DeepFilterNet denoise step
 
