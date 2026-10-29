@@ -2,7 +2,7 @@
   "name": "make-video",
   "displayName": "make-video",
   "description": "Idea → script → voice → captions → music → Remotion render → QA, for $0. Free, local, no API keys.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "TheNoumanDev",
     "url": "https://github.com/TheNoumanDev"

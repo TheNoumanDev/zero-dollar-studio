@@ -11,9 +11,19 @@ Turns a cast of characters into voiced, lip-synced cartoon episodes using only f
 
 ## 0. Set up (once per project)
 
-1. If the current folder has no `tools/make-story.sh`, it isn't a make-video project yet. Use the **make-video** skill to set one up first (its §0, including `tools/setup.sh`). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio`.
-2. Copy the `template/` folder that sits next to this SKILL.md over the project, without overwriting anything: `cp -Rn <skill dir>/template/. <project>/`. It only adds files (`tools/*`, `src/compositions/_Episode/`, `series/milo-and-rosa/`, `stories/milo-and-rosa-ep01/`).
-3. Register the example episode in `src/Root.tsx`:
+1. If the current folder has no `tools/make-story.sh`, it isn't a make-video project yet. Use the **make-video** skill to set one up first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio` and `/reload-plugins`, then continue.
+2. **Tell the user what cartoonsmith adds, and wait for their OK:**
+
+   | Download | Size | When |
+   |---|---|---|
+   | Pillow + Rhubarb Lip Sync | ~10 MB | always |
+   | Rosetta 2 (Apple's Intel translator, for Rhubarb) | small | Apple Silicon, if not installed |
+   | Real-ESRGAN upscaler | ~45 MB | optional, `WITH_UPSCALE=1`, for small or blurry art |
+   | Indic Parler-TTS | ~5 GB | optional, `WITH_PARLER=1`, only for Hindi or other Indian-language voices; English uses make-video's Chatterbox |
+
+   Ask which language the series is in, so you only offer Parler when it's needed.
+3. Copy the `template/` folder that sits next to this SKILL.md over the project, without overwriting anything: `cp -Rn <skill dir>/template/. <project>/`. It only adds files (`tools/*`, `src/compositions/_Episode/`, `series/milo-and-rosa/`, `stories/milo-and-rosa-ep01/`).
+4. Register the example episode in `src/Root.tsx`:
    ```tsx
    import { calculateEpisodeMetadata, Episode } from "./compositions/_Episode";
    // inside <>…</>:
@@ -23,8 +33,8 @@ Turns a cast of characters into voiced, lip-synced cartoon episodes using only f
        calculateMetadata={calculateEpisodeMetadata} defaultProps={{ slug: "milo-and-rosa-ep01" }} />
    </Folder>
    ```
-4. Run `tools/setup_cartoon.sh` (about a minute): Pillow plus Rhubarb Lip Sync. The macOS Rhubarb build is Intel-only, so Apple Silicon needs Rosetta 2 (`softwareupdate --install-rosetta`); without Rhubarb, mouths follow loudness only. Extras: `WITH_UPSCALE=1` (Real-ESRGAN), `WITH_PARLER=1` (Indic Parler-TTS, ~5 GB, gated: the user accepts its terms on Hugging Face and runs `hf auth login` first).
-5. Prove it works with stand-in art drawn in code, then show the user `out/MiloRosaEp01.mp4` (13 s, about 2.5 minutes):
+5. On their OK, run `tools/setup_cartoon.sh` with only the extras they chose (about a minute): Pillow plus Rhubarb Lip Sync. The macOS Rhubarb build is Intel-only, so Apple Silicon needs Rosetta 2 (`softwareupdate --install-rosetta`); without Rhubarb, mouths follow loudness only. Extras: `WITH_UPSCALE=1` (Real-ESRGAN), `WITH_PARLER=1` (Indic Parler-TTS, ~5 GB, gated: the user accepts its terms on Hugging Face and runs `hf auth login` first).
+6. Prove it works with stand-in art drawn in code, then show the user `out/MiloRosaEp01.mp4` (13 s, about 2.5 minutes):
    ```bash
    .venv/bin/python tools/make_placeholder_cast.py          # art/milo-and-rosa/<id>/faces.png + poses.png
    POSES="apose wave" tools/rig_character.sh milo-and-rosa milo art/milo-and-rosa/milo/faces.png art/milo-and-rosa/milo/poses.png

@@ -15,10 +15,19 @@ Turns a long video into vertical Shorts with only free, local tools. The one exc
 
 snipshorts sits on top of a make-video project.
 
-1. If the current folder has no `tools/make-story.sh`, it isn't a video project yet. Set one up with the **make-video** skill first (its §0: copy its template, run `tools/setup.sh`). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio`.
-2. Copy this skill's `template/` folder over the project: `cp -R <skill dir>/template/. <project>/`. It only adds files (`tools/podcast/`, `src/compositions/PodcastShort/`, `podcasts/example/`) and never replaces make-video's.
-3. Run `tools/podcast/setup.sh`. It installs faster-whisper, yt-dlp and OpenCV into `.venv`, downloads the YuNet face detector (230 KB), registers the `PodcastShorts` folder in `src/Root.tsx` and adds media folders to `.gitignore`.
-4. Check `claude --version` works in the shell. The pipeline calls it.
+1. If the current folder has no `tools/make-story.sh`, it isn't a video project yet. Set one up with the **make-video** skill first (its §0: it shows the user its download list, about 6 GB, and waits for their OK). If that skill isn't installed, tell the user to run `/plugin install make-video@zero-dollar-studio` and `/reload-plugins`, then continue.
+2. **Tell the user what snipshorts adds, and wait for their OK:**
+
+   | Download | Size | Used for |
+   |---|---|---|
+   | faster-whisper, yt-dlp, OpenCV (Python packages, into `.venv/`) | ~150 MB | transcripts, fetching the source, face framing |
+   | YuNet face detector | 230 KB | finding the speaker (no face recognition) |
+   | Whisper `small` weights, on the first transcript | ~480 MB | word-level transcript (Hugging Face cache) |
+   | The source video, per episode | depends on length | you need the rights to clip it |
+
+3. On their OK, copy this skill's `template/` folder over the project: `cp -R <skill dir>/template/. <project>/`. It only adds files (`tools/podcast/`, `src/compositions/PodcastShort/`, `podcasts/example/`) and never replaces make-video's.
+4. Run `tools/podcast/setup.sh`. It installs the packages, downloads YuNet, registers the `PodcastShorts` folder in `src/Root.tsx` and adds media folders to `.gitignore`. Safe to re-run.
+5. Check `claude --version` works in the shell. The pipeline calls it.
 
 **Rights.** Remind the user once: they need the rights to clip the source (their own show, permission, or a solid fair-use case). Clips of other people's footage can draw copyright claims.
 

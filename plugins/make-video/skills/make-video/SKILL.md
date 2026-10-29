@@ -13,10 +13,25 @@ Turns an idea into a rendered, checked MP4 using only free, local tools. A proje
 
 If the current folder has no `tools/make-story.sh`, it isn't a video project yet:
 
-1. Ask where to create it (default `~/videos`). Copy the `template/` folder that sits next to this SKILL.md into it, including dotfiles (`cp -R <skill dir>/template/. <dest>/`), then `git init`.
-2. Check the requirements: macOS on Apple Silicon, Node 20+, Homebrew, about 8 GB of free disk space. On another OS, say what won't work (Chatterbox and the take checker run on the Apple GPU) before going further.
-3. Run `tools/setup.sh` **in the background**. It downloads about 6 GB (Chatterbox, Whisper, soundfont) and takes 10-20 minutes. `SKIP_TAKE_CHECK=1` skips the 1.6 GB take checker.
-4. Prove it works: `tools/make-story.sh stories/fridge-drama FridgeDrama` makes the 33 s example (three vegetables argue in a fridge) in about 4 minutes. Show the user `out/FridgeDrama.mp4`.
+1. **Check the machine** before anything else: `uname -sm` (needs Darwin arm64), `node --version` (20+), `brew --version`, `df -h ~` (about 8 GB free). On another OS, say what won't work (Chatterbox and the take checker run on the Apple GPU) before going further. If Node or Homebrew is missing, give the user the one install command and wait.
+2. **Tell the user what will be downloaded, and wait for their OK.** Never start the downloads without it. Show this table (all free, from the official sources):
+
+   | Download | Size | Used for | Where it goes |
+   |---|---|---|---|
+   | npm packages (Remotion etc.) | ~500 MB | rendering | `node_modules/` |
+   | ffmpeg, uv, FluidSynth (Homebrew, only if missing) | ~150 MB | audio/video tools | Homebrew |
+   | Python packages (PyTorch, Chatterbox…) | ~1.5 GB | voice, QA | `.venv/` |
+   | GeneralUser GS soundfont | ~30 MB | music | `tools/soundfonts/` |
+   | Chatterbox weights | ~3 GB | the voice | Hugging Face cache (`~/.cache/huggingface`), shared by all projects |
+   | Whisper small.en | ~590 MB | captions | `tools/models/` |
+   | Whisper large-v3-turbo (optional take checker) | ~1.6 GB | re-records unclear lines | Hugging Face cache |
+
+   Total about 6 GB and 10-20 minutes. Offer the lighter option: `SKIP_TAKE_CHECK=1` skips the take checker (4.4 GB total). Ask where to create the project (default `~/videos`).
+3. On their OK, copy the `template/` folder that sits next to this SKILL.md into the project, including dotfiles (`cp -R <skill dir>/template/. <dest>/`), then `git init`.
+4. Run `tools/setup.sh` **in the background** and keep the user posted: say which step it's on (it prints `▶` lines) and, during the big download, how far it is (`du -shL ~/.cache/huggingface/hub/models--ResembleAI--chatterbox`, target ~3 GB). It is safe to re-run: finished steps are skipped and interrupted downloads resume. If a download stalls (size not growing for 5 minutes), stop it and run setup again. If it fails, read the error, fix the cause (missing tool, disk space, network) and re-run; don't work around a missing model.
+5. Prove it works: `tools/make-story.sh stories/fridge-drama FridgeDrama` makes the 33 s example (three vegetables argue in a fridge) in about 4 minutes. Show the user `out/FridgeDrama.mp4`, then ask what they want to make.
+
+The tools find the models on their own (Chatterbox and the take checker from the Hugging Face cache, captions from `tools/models/`), so nothing needs configuring after setup. A second project reuses the cached weights, so its setup is much faster.
 
 ## 1. Lock the brief (ask only if missing)
 
