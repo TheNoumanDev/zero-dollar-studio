@@ -7,7 +7,6 @@
   <a href="guides/LICENSE"><img alt="Guides: CC BY 4.0" src="https://img.shields.io/badge/guides-CC%20BY%204.0-FFD23F"></a>
   <img alt="Cost: $0" src="https://img.shields.io/badge/cost-%240-FF5C8A">
   <img alt="Runs locally on macOS Apple Silicon" src="https://img.shields.io/badge/runs%20on-macOS%20Apple%20Silicon-A9A3C9">
-  <a href="https://github.com/TheNoumanDev/zero-dollar-studio/releases"><img alt="Release" src="https://img.shields.io/github/v/release/TheNoumanDev/zero-dollar-studio?color=FFD23F&label=release"></a>
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-5BE3A0"></a>
   <a href="https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA"><img alt="YouTube: @0x45.dev" src="https://img.shields.io/badge/YouTube-%400x45.dev-FF0000?logo=youtube&logoColor=white"></a>
 </p>
