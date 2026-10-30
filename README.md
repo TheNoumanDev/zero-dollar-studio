@@ -80,36 +80,96 @@ Your coding agent does the thinking: script, fact checks, moment picking, edit p
 | 🎨 [**cartoonsmith**](plugins/cartoonsmith/) | Voiced cartoon episodes with recurring characters: talking rigs from your own character art, lip sync, captions and music |
 | 📘 [**guides/**](guides/) | Free PDF guides from the videos: Claude desktop cheat sheet, the $0 video stack, the AI avatar build, the daily pipeline |
 
-## ⚡ Quickstart
+## ⚡ Install
 
-**1. Add the skills.** In Claude Code:
+**Pick the agent you use.** The skills do the same thing in every agent; only the install command is different.
+
+| I use… | Go to |
+|---|---|
+| Claude Code (CLI, desktop app or IDE) | [🟠 Claude Code](#-claude-code) |
+| OpenAI Codex CLI | [⚪ Codex](#-codex) |
+| Google Gemini CLI | [🔵 Gemini CLI](#-gemini-cli) |
+| Cursor, GitHub Copilot or another agent | [🟣 Other agents](#-other-agents) |
+| ChatGPT, Claude.ai, Kimi or Gemini **on the web** | ❌ Not supported. The pipeline needs your Mac's GPU and about 6 GB of local models. |
+
+**Every agent needs:** macOS on Apple Silicon, Homebrew and about 8 GB of free disk.
+
+---
+
+### 🟠 Claude Code
+
+Type these in Claude Code (they're slash commands, not terminal commands):
 
 ```
 /plugin marketplace add TheNoumanDev/zero-dollar-studio
 /plugin install make-video@zero-dollar-studio
 /plugin install snipshorts@zero-dollar-studio     # optional add-on
 /plugin install cartoonsmith@zero-dollar-studio   # optional add-on
+/reload-plugins
 ```
 
-**2. Ask for a video:** *"make a 30-second Short explaining how DNS works"*.
+- **Needs:** Node 20+.
+- **Start:** just ask, e.g. *"make a 30-second Short explaining how DNS works"*. Claude picks the right skill.
+- **Update:** `/plugin marketplace update zero-dollar-studio`
 
-**3. OK the downloads.** The first time, your agent checks your Mac, shows what it needs (about 6 GB of free models, each with its size) and waits for your OK. It then sets up a video project, renders the Fridge Drama example to prove it all works, and moves on to your video.
+---
 
-snipshorts and cartoonsmith are add-ons: they copy their tools into the project that make-video sets up.
+### ⚪ Codex
 
-**You need:** macOS on Apple Silicon, Node 20+, Homebrew and about 8 GB of free disk.
-
-### Other agents (Codex, Gemini CLI, Cursor, Copilot, …)
-
-The skills are plain [`SKILL.md`](https://agentskills.io) folders, so any coding agent that reads skills and can run shell commands can use them:
+Run this in your terminal, inside the folder you'll make videos in:
 
 ```bash
-npx skills add TheNoumanDev/zero-dollar-studio
+npx skills add TheNoumanDev/zero-dollar-studio -a codex
 ```
 
-This installs into your agent's skills folder (for example `.agents/skills/`). snipshorts asks an agent CLI to pick moments and plan edits; that's Claude Code by default, and `SNIPSHORTS_LLM=codex`, `gemini` or any command that reads a prompt on stdin switches it. The installer and that switch are tested, but a full run inside each agent isn't yet, so please open an issue if something breaks.
+- **Needs:** Node **22+** for the installer (`node -v`; on Node 20 it fails with a `glob` error).
+- **Installs to:** `.agents/skills/` in that folder. Add `-g` to install for every folder.
+- **Start:** open `codex` there and ask, e.g. *"use the make-video skill to make a 30-second Short about DNS"*.
+- **snipshorts:** set `export SNIPSHORTS_LLM=codex` so it asks Codex instead of Claude to pick moments.
+- **Update:** `npx skills update`
 
-Chat apps like ChatGPT or Kimi on the web can't run these skills: the pipeline needs your Mac's GPU and about 6 GB of local models.
+---
+
+### 🔵 Gemini CLI
+
+Run this in your terminal, inside the folder you'll make videos in:
+
+```bash
+npx skills add TheNoumanDev/zero-dollar-studio -a gemini-cli
+```
+
+- **Needs:** Node **22+** for the installer.
+- **Installs to:** `.agents/skills/` in that folder. Add `-g` to install for every folder.
+- **Start:** open `gemini` there and ask, e.g. *"use the make-video skill to make a 30-second Short about DNS"*.
+- **snipshorts:** set `export SNIPSHORTS_LLM=gemini`.
+- **Update:** `npx skills update`
+
+---
+
+### 🟣 Other agents
+
+Cursor, GitHub Copilot and any agent that reads [Agent Skills](https://agentskills.io) and can run shell commands:
+
+```bash
+npx skills add TheNoumanDev/zero-dollar-studio -a cursor           # or -a github-copilot
+npx skills add TheNoumanDev/zero-dollar-studio                     # asks which agents you use
+```
+
+- **Needs:** Node **22+** for the installer.
+- **snipshorts:** it asks an agent CLI to pick moments. Set `SNIPSHORTS_LLM` to `claude`, `codex`, `gemini` or any command that reads a prompt on stdin, e.g. `SNIPSHORTS_LLM="ollama run qwen3:14b"`.
+- Add `-s make-video` to install one skill instead of all three.
+
+> **Tested so far:** the installer for each agent above, and snipshorts' `SNIPSHORTS_LLM` switch. Full video runs have been tested in Claude Code only. If something breaks in your agent, please [open an issue](https://github.com/TheNoumanDev/zero-dollar-studio/issues/new/choose).
+
+---
+
+### ▶️ Your first video (same in every agent)
+
+1. **Ask for a video:** *"make a 30-second Short explaining how DNS works"*.
+2. **OK the downloads.** The first time, your agent checks your Mac, lists what it needs (about 6 GB of free models, each with its size) and **waits for your OK**.
+3. **Watch it set up.** It sets up a video project, renders the Fridge Drama example to prove everything works, then makes your video.
+
+snipshorts and cartoonsmith are add-ons: they copy their tools into the project that make-video sets up, so install make-video too.
 
 ## 🆓 The free stack
 
