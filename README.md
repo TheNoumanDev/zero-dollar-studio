@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/TheNoumanDev/zero-dollar-studio/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/TheNoumanDev/zero-dollar-studio?color=FFD23F&label=release"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/code-MIT-5BE3A0"></a>
   <a href="guides/LICENSE"><img alt="Guides: CC BY 4.0" src="https://img.shields.io/badge/guides-CC%20BY%204.0-FFD23F"></a>
   <img alt="Cost: $0" src="https://img.shields.io/badge/cost-%240-FF5C8A">

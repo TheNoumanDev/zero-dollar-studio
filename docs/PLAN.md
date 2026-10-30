@@ -13,7 +13,7 @@
 | `cartoonsmith` skill v0.1 | ✅ live 30 Oct (add-on to make-video); placeholder-cast episode rendered, QA PASS | [plugins/cartoonsmith](https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/cartoonsmith) |
 | `THIRD_PARTY_NOTICES.md` | ✅ live | [notices](https://github.com/TheNoumanDev/zero-dollar-studio/blob/main/THIRD_PARTY_NOTICES.md) |
 | Other agents (`npx skills add`, `SNIPSHORTS_LLM`) | ✅ 30 Oct: installer + LLM switch tested; full Codex/Gemini runs not yet | |
-| README v2 (comparison, diagram, FAQ, roadmap), CONTRIBUTING, issue templates, v0.1.0 release | ✅ 30 Oct | |
+| README v2 (comparison, diagram, FAQ, roadmap), CONTRIBUTING, issue templates, v0.1.0 release | ✅ 30 Oct | [v0.1.0](https://github.com/TheNoumanDev/zero-dollar-studio/releases/tag/v0.1.0) |
 | Social preview image (`assets/social-preview.png`) | ⏳ upload by hand: Settings → Social preview | |
 | Awesome-list PRs (ComposioHQ, travisvn, VoltAgent) | ⏳ ready to do | |
 | README hero (logo, video, Fridge Drama GIF) | ✅ live 30 Oct | [README](https://github.com/TheNoumanDev/zero-dollar-studio) |
