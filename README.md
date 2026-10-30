@@ -41,6 +41,32 @@
   </tr>
 </table>
 
+## 🖼️ Made with it
+
+Real Shorts from the channels these skills were built for, straight from the render folder.
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="assets/demo-cartoonsmith.gif" alt="Super Sharma Parivaar cartoon: a shocked mom in the kitchen, then the family's hero pose" width="220"><br>
+      <b>🎨 cartoonsmith</b><br>
+      <sub>Super Sharma Parivaar: rigged characters, lip sync, Hinglish captions</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="assets/demo-snipshorts-tv.gif" alt="A Bigg Boss argument cut to a vertical Short with a hook title and word-by-word captions" width="220"><br>
+      <b>✂️ snipshorts</b><br>
+      <sub>A TV episode → a vertical Short: hook title, captions, "how it started" rewind</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="assets/demo-snipshorts-podcast.gif" alt="A podcast guest tracked in a vertical frame with a hook title and word-by-word captions" width="220"><br>
+      <b>✂️ snipshorts</b><br>
+      <sub>A 2-hour podcast → the best minute, speaker tracked, captions</sub>
+    </td>
+  </tr>
+</table>
+
+<sub>Clips shown as short demos of the output. Bigg Boss 20 © Colors TV / JioHotstar. Adam Grant on <a href="https://www.youtube.com/watch?v=khp7AnOJn8g">Figuring Out with Raj Shamani</a>. Only clip what you have the rights to post.</sub>
+
 ## 💸 Why not just pay for it?
 
 Doing the same with paid tools costs about **$50 a month**, and the free tiers stamp a watermark on your videos.
