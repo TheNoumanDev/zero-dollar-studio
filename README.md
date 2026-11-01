@@ -106,6 +106,8 @@ Your coding agent does the thinking: script, fact checks, moment picking, edit p
 | 🎨 [**cartoonsmith**](plugins/cartoonsmith/) | Voiced cartoon episodes with recurring characters: talking rigs from your own character art, lip sync, captions and music |
 | 📘 [**guides/**](guides/) | Free PDF guides from the videos: Claude desktop cheat sheet, the $0 video stack, the AI avatar build, the daily pipeline |
 
+**Pairs well with:** [claude-youtube](https://github.com/AgriciDaniel/claude-youtube) (MIT, third-party) for the planning side: `/youtube hook` gives five openers with their drop-off risk, plus `ideate`, `competitor`, `thumbnail` and `repurpose`. If you use it, give its skill description a narrower trigger, because the stock one also fires on words like "video" and "script" and takes over make-video requests.
+
 ## ⚡ Install
 
 **Pick the agent you use.** The skills do the same thing in every agent; only the install command is different.
@@ -234,6 +236,7 @@ No, on purpose. It writes the video, title, caption and tags to a folder, and yo
 
 - [x] make-video, snipshorts, cartoonsmith v0.1
 - [x] Works in other agents through `npx skills add`
+- [x] make-video: karaoke caption style, smarter caption gap fill with a match-rate report, QA for the Reels right-side button rail
 - [ ] **make-video v0.2:** optional AI talking face (JoyVASA + LivePortrait, no non-commercial face models)
 - [ ] Full runs tested in Codex and Gemini CLI
 - [ ] snipshorts: cover maker and upscaling

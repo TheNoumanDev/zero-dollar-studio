@@ -8,7 +8,8 @@
  * text: Whisper supplies the timings and the script supplies the spelling,
  * so captions never contain typos. Writes:
  *   public/<slug>/captions.json   Remotion Caption[] (ms, composition time)
- *   <story>/captions-report.json  per-line Whisper text and word error rate
+ *   <story>/captions-report.json  per-line Whisper text, word error rate, matched
+ *                                 words and the filled (estimated) stretches
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -68,11 +69,48 @@ const decode = (file) => {
 };
 
 /**
- * Align script words to Whisper words (LCS on normalized tokens). Matched
- * words take Whisper's timing; unmatched words are interpolated between
- * their neighbours.
+ * Place words Whisper missed between their matched neighbours: only over the
+ * voiced part of the gap (loudness envelope, so no word sits on a pause),
+ * longer words getting more time. Falls back to an even split when the gap
+ * has no voiced audio.
  */
-const snap = (scriptWords, heard, lineMs) => {
+const fillGap = (words, from, to, envelope, fps) => {
+  const frameMs = 1000 / fps;
+  const voiced = [];
+  for (let f = Math.floor(from / frameMs); f * frameMs < to; f++) {
+    if ((envelope?.[f] ?? 0) <= 0.12) continue;
+    const s = Math.max(from, f * frameMs), e = Math.min(to, (f + 1) * frameMs);
+    if (voiced.length && Math.abs(voiced.at(-1)[1] - s) < 1e-6) voiced.at(-1)[1] = e;
+    else voiced.push([s, e]);
+  }
+  const voicedMs = voiced.reduce((t, [s, e]) => t + e - s, 0);
+  if (voicedMs < 40 * words.length) voiced.splice(0, voiced.length, [from, to]);
+  const total = voiced.reduce((t, [s, e]) => t + e - s, 0);
+  const weights = words.map((w) => norm(w).length + 1);
+  const sum = weights.reduce((a, b) => a + b, 0);
+  // Map "voiced time elapsed" back onto the real clock.
+  const at = (v) => {
+    for (const [s, e] of voiced) {
+      if (v <= e - s) return s + v;
+      v -= e - s;
+    }
+    return voiced.at(-1)[1];
+  };
+  let v = 0;
+  return weights.map((w) => {
+    const d = (total * w) / sum;
+    const out = [at(v), at(v + d)];
+    v += d;
+    return out;
+  });
+};
+
+/**
+ * Align script words to Whisper words (LCS on normalized tokens). Matched
+ * words take Whisper's timing; unmatched words are filled into the voiced
+ * part of the gap between their neighbours (fillGap).
+ */
+const snap = (scriptWords, heard, lineMs, envelope, fps) => {
   const a = scriptWords.map(norm);
   const b = heard.map((c) => norm(c.text));
   const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
@@ -85,19 +123,20 @@ const snap = (scriptWords, heard, lineMs) => {
     else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
     else j++;
   }
-  // Interpolate gaps between known anchors (line start/end as fallbacks).
+  // Fill gaps between known anchors (line start/end as fallbacks).
+  const filled = [];
   for (let i = 0; i < times.length; i++) {
     if (times[i]) continue;
     let k = i;
     while (k < times.length && !times[k]) k++;
     const from = i === 0 ? 0 : times[i - 1][1];
     const to = k < times.length ? times[k][0] : lineMs;
-    const step = (to - from) / (k - i);
-    for (let m = i; m < k; m++) times[m] = [from + step * (m - i), from + step * (m - i + 1)];
+    fillGap(scriptWords.slice(i, k), from, to, envelope, fps).forEach((t, m) => (times[i + m] = t));
+    filled.push({ words: scriptWords.slice(i, k).join(" "), fromMs: Math.round(from), toMs: Math.round(to) });
   }
   const matched = dp[0][0];
   const wer = 1 - matched / Math.max(a.length, b.length, 1);
-  return { times, wer };
+  return { times, wer, matched, filled };
 };
 
 const t0 = Date.now();
@@ -112,12 +151,15 @@ await loadWhisperModel({ model: MODEL });
 
 const captions = [];
 const report = [];
+let totalWords = 0, totalMatched = 0;
 for (const line of timeline.lines) {
   const waveform = decode(line.file);
   const out = await transcribe({ channelWaveform: waveform, model: MODEL, ...transcribeOptions });
   const heard = toCaptions({ whisperWebGpuOutput: out }).captions.filter((c) => norm(c.text));
   const spoken = line.text.split(/\s+/).filter(Boolean);
-  const { times: spokenTimes, wer } = snap(spoken, heard, line.durationMs);
+  const { times: spokenTimes, wer, matched, filled } = snap(spoken, heard, line.durationMs, line.envelope, timeline.fps);
+  totalWords += spoken.length;
+  totalMatched += matched;
   const caption = line.caption ?? line.text;
   const words = caption.split(/\s+/).filter(Boolean);
   const times = caption === line.text ? spokenTimes : spread(words, line.envelope, timeline.fps, line.durationMs);
@@ -133,7 +175,7 @@ for (const line of timeline.lines) {
       emphasis: (line.emphasis ?? []).some((e) => norm(e) === norm(w)),
     });
   });
-  report.push({ speaker: line.speaker, script: line.text, heard: heard.map((c) => c.text).join("").trim(), wer: Number(wer.toFixed(2)) });
+  report.push({ speaker: line.speaker, script: line.text, heard: heard.map((c) => c.text).join("").trim(), wer: Number(wer.toFixed(2)), matched: `${matched}/${spoken.length}`, filled });
   console.log(`[${line.speaker}] WER ${(wer * 100).toFixed(0)}%  heard: ${report.at(-1).heard}`);
 }
 
@@ -141,8 +183,11 @@ await disposeWhisperModel({ model: MODEL });
 
 writeFileSync(path.join("public", timeline.slug, "captions.json"), JSON.stringify(captions, null, 2));
 const avg = report.reduce((s, r) => s + r.wer, 0) / report.length;
+const matchRate = totalMatched / Math.max(totalWords, 1);
 writeFileSync(
   path.join(storyDir, "captions-report.json"),
-  JSON.stringify({ model: MODEL, seconds: (Date.now() - t0) / 1000, averageWer: Number(avg.toFixed(3)), lines: report }, null, 2),
+  JSON.stringify({ model: MODEL, seconds: (Date.now() - t0) / 1000, averageWer: Number(avg.toFixed(3)), matchRate: Number(matchRate.toFixed(3)), lines: report }, null, 2),
 );
-console.log(`Captions: ${captions.length} words, avg WER ${(avg * 100).toFixed(1)}%, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+console.log(`Captions: ${captions.length} words, avg WER ${(avg * 100).toFixed(1)}%, matched ${(matchRate * 100).toFixed(0)}%, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+// Under 70% matched, the timings are mostly guesses: the script and the audio probably differ (a garbled take, edited text).
+if (matchRate < 0.7) console.warn(`⚠ Only ${(matchRate * 100).toFixed(0)}% of words matched Whisper: check captions-report.json ("filled") and re-voice garbled lines.`);

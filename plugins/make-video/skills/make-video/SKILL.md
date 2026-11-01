@@ -52,7 +52,7 @@ Pacing rules for vertical short-form:
 - Hook on screen and audible by **frame 0**. The first 1.5 s decides retention, and frame 0 is often the thumbnail, so never start on an empty or fading frame.
 - Each line ≤ 12 words. Captions show ≤ 3 words at a time.
 - Something moves **every** second.
-- **Safe zone for 1080×1920:** nothing important above y=220 or below y=1540 (platform UI). Like and comment buttons run down the right edge, so put a presenter bottom-left.
+- **Safe zone for 1080×1920:** nothing important above y=220 or below y=1540 (platform UI), and nothing right of x≈940 below y≈1000: the like/comment/share buttons run down the right edge (`tools/qa.py --layout` fails it). Put a presenter bottom-left.
 - End on a payoff or punchline, then a 2-3 s call-to-action card.
 
 **Explainer template** ("how it works" and dev-tip reels, 45-60 s, 120-160 words):
@@ -66,6 +66,7 @@ Then **list every factual claim with a source link** under the script, mark anyt
 
 **Craft checklist** for Shorts/Reels:
 - **Progress you can see.** Step-by-step videos get `<StepCard steps={[{at: 0, title: "Download it"}, …]} />` (`src/components/StepCard.tsx`): a "STEP 2/4" pill and a segmented bar.
+- **Karaoke captions (optional style).** `<Karaoke words={captions} keywords={["free"]} style={{left: 60, right: 140, top: 1180}} />` (`src/components/Karaoke.tsx`): the whole 2–5 word chunk is on screen, spoken words solid, upcoming ones grey, keywords and stressed words in the accent colour, so viewers can read ahead on muted autoplay. `background` gives a light card look; pass `qa` through so the layout check sees it.
 - **Series chip.** An episode marker top-left ("PART 2") makes posts feel bingeable.
 - **Show the contrast.** A before/after or "us vs them" works better as a two-column card than as speech.
 - **Story beats beat lists.** "Attempt 1 failed → attempt 2 failed → what worked" holds attention better than a list of features.
@@ -106,7 +107,7 @@ SAMPLE=15 tools/make-story.sh …                        # render the first 15 s
 | Tool | Output |
 |---|---|
 | `tools/voice.py` | `public/<slug>/lines/*.wav` (cached by text + voice settings), `public/<slug>/voice.wav`, `stories/<slug>/timeline.json` (line timings, events, per-frame mouth envelopes). With the take checker installed, Whisper listens to every sentence and re-records unclear ones (`VOICE_TAKES`, default 3). |
-| `tools/captions.mjs` | `public/<slug>/captions.json` (word timings from Whisper, spelling from the script), `stories/<slug>/captions-report.json` (word error rate per line) |
+| `tools/captions.mjs` | `public/<slug>/captions.json` (word timings from Whisper, spelling from the script), `stories/<slug>/captions-report.json` (word error rate and matched words per line, the "filled" stretches Whisper missed, overall `matchRate`) |
 | `tools/music.py` | `public/<slug>/music.wav` (MIDI → FluidSynth, fitted to the cuts), `public/<slug>/sfx.wav` |
 | `tools/qa.py` | `stories/<slug>/qa/report.md`: PASS / FIX / FAIL |
 
@@ -120,7 +121,7 @@ Build the composition from `timeline.json` / `captions.json` (see `src/compositi
 
 Then check by eye:
 1. `npm run lint`.
-2. Any line in `stories/<slug>/captions-report.json` with WER > 0.2 is probably mumbled: reword and regenerate (cheap, thanks to the cache).
+2. Any line in `stories/<slug>/captions-report.json` with WER > 0.2 is probably mumbled: reword and regenerate (cheap, thanks to the cache). Words Whisper missed are placed over the voiced part of the gap only, longer words getting more time, and listed under `filled`: listen to those spots. Under 70% `matchRate` the script and the audio differ, so re-voice before going on.
 3. Render stills at key beats (hook, each speaker, each event, outro), join them into one contact sheet, and **look at it**:
    ```bash
    npx remotion still <Id> out/stills/f<N>.png --frame=<N> --scale=0.4

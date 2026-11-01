@@ -17,7 +17,7 @@ src/
   config/video.ts          resolution, fps, scene lengths (single source of truth)
   config/theme.ts          colors and fonts (Google Fonts via @remotion/google-fonts)
   lib/animation.ts         helpers: sec, progress, fadeIn, fadeOut, springIn, stagger, mix, useScale, easings
-  components/              reusable visuals: AnimatedText, Background, Shape
+  components/              reusable visuals: AnimatedText, Background, Shape, StepCard (STEP 2/4 bar), Karaoke (chunked karaoke captions)
   compositions/
     SampleIntro/           demo: 3 scenes + TransitionSeries + background music
       index.tsx            timeline (scenes, transitions, audio)

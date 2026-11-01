@@ -10,7 +10,7 @@ Checks (each reports value, limit and verdict):
   beats     every visual cut within 120 ms of a music beat (timeline.music)
   frozen    longest stretch with almost no on-screen change (≤ 3 s)
   variety   distinct visuals per second of video, longest same-looking run (≤ 5 s)
-  layout    (with --layout) captions vs platform dead zones and vs the face:
+  layout    (with --layout) captions vs platform dead zones (incl. the Reels right-side button rail) and vs the face:
             renders a ¼-scale preview of the composition with qa=true, in which
             captions are outlined pure magenta and the face pure cyan
   duplicate captions that only repeat text already on screen (script "onScreenText")
@@ -151,16 +151,17 @@ if layout_comp:
             if w > h:  # 16:9 long-form: only the player's controls/progress bar (bottom ~7%) and the top edge get in the way
                 top, bottom = ys.min() / h * 1080, ys.max() / h * 1080
                 bad = top < 30 or bottom > 1005
-            else:  # 9:16 Shorts/Reels: platform UI above y 220 and below y 1540
+            else:  # 9:16 Shorts/Reels: platform UI above y 220 and below y 1540, plus the like/comment/share column on the right
                 top, bottom = ys.min() / h * 1920, ys.max() / h * 1920
-                bad = top < 220 or bottom > 1540
+                right = xs.max() / w * 1080
+                bad = top < 220 or bottom > 1540 or (right > 940 and bottom > 1000)
             if bad:
-                dead.append(f"{t_s:.1f}s ({top:.0f}–{bottom:.0f}px)")
+                dead.append(f"{t_s:.1f}s ({top:.0f}–{bottom:.0f}px" + (f", right {right:.0f}px)" if w < h else ")"))
             if cyan.sum() > 20:
                 cy_, cx_ = np.where(cyan)
                 if not (xs.max() < cx_.min() or xs.min() > cx_.max() or ys.max() < cy_.min() or ys.min() > cy_.max()):
                     overlap.append(f"{t_s:.1f}s")
-        check("layout: captions inside safe zone (9:16 y 220–1540 · 16:9 y 30–1005)", not dead, len(dead), "0 frames", "FAIL", ", ".join(dead[:6]))
+        check("layout: captions inside safe zone (9:16 y 220–1540, clear of the right rail x>940 below y 1000 · 16:9 y 30–1005)", not dead, len(dead), "0 frames", "FAIL", ", ".join(dead[:6]))
         check("layout: captions never cover the face", not overlap, len(overlap), "0 frames", "FAIL", ", ".join(overlap[:6]))
 
 # ---------- contact sheet + verdict ----------
