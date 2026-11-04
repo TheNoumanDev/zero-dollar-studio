@@ -13,7 +13,7 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The tools 
 | [ffmpeg](https://ffmpeg.org) | make-video | LGPL/GPL | Installed by the user (Homebrew). |
 | [OpenCV](https://github.com/opencv/opencv-python) (`opencv-python-headless`) | make-video | Apache-2.0 / MIT | QA frame analysis. |
 | `mido`, `soundfile`, `scipy`, `numpy`, `huggingface_hub`, PyTorch | make-video | MIT / BSD-3-Clause / Apache-2.0 | Python dependencies from PyPI. |
-| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (with CTranslate2, PyAV, Silero VAD) and `Systran/faster-whisper-*` weights | snipshorts, edit-footage | MIT (PyAV: BSD-3-Clause) | Word-level transcripts. Weights download on first use. |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (with CTranslate2, PyAV, Silero VAD) and `Systran/faster-whisper-*` weights (edit-footage Hinglish: `mobiuslabsgmbh/faster-whisper-large-v3-turbo`, a conversion of OpenAI's MIT-licensed turbo weights) | snipshorts, edit-footage | MIT (PyAV: BSD-3-Clause) | Word-level transcripts. Weights download on first use. |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | snipshorts | Unlicense | Fetches the source video. You need the rights to clip it. |
 | [YuNet](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) face detector (OpenCV Zoo) | snipshorts, edit-footage | MIT | Speaker framing only, no face recognition. Downloaded by `tools/podcast/setup.sh`. |
 | [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) | cartoonsmith | MIT (bundled components listed in its LICENSE.md) | Mouth shapes. Downloaded by `tools/setup_cartoon.sh`; the macOS build is x86_64, so Apple Silicon uses Rosetta 2. |

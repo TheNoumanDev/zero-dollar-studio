@@ -24,7 +24,7 @@ Then ask Claude Code: *"edit my recording into a reel: ~/Movies/IMG_0042.MOV"*. 
 
 - A make-video project with the snipshorts tools (macOS on Apple Silicon, Node 20+, Homebrew, ffmpeg)
 - A logged-in coding-agent CLI for the edit plan: [Claude Code](https://claude.com/claude-code) (`claude`) by default, or `SNIPSHORTS_LLM=codex`, `gemini` or a local model command
-- About 650 MB for snipshorts' Python packages and the Whisper model, if you don't have them yet
+- About 650 MB for snipshorts' Python packages and the Whisper model, if you don't have them yet (plus 1.6 GB for Whisper large-v3-turbo if you record in Hinglish)
 
 ## What it does
 

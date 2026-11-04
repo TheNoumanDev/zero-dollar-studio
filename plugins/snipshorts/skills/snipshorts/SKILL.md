@@ -59,7 +59,7 @@ Download the full episode at 720p for the transcript only:
 
 Then get word timestamps into `podcasts/<slug>/words.json`, one of two ways:
 
-- **Whisper (default):** `.venv/bin/python tools/podcast/transcribe.py podcasts/<slug>/source.mp4 podcasts/<slug>/words.json` (faster-whisper `small` on the CPU, ~10 min for a 65 min episode; `--lang hi`, `--model large-v3` for accents and noise).
+- **Whisper (default):** `.venv/bin/python tools/podcast/transcribe.py podcasts/<slug>/source.mp4 podcasts/<slug>/words.json` (faster-whisper `small` on the CPU, ~10 min for a 65 min episode; `--lang hi`, `--model large-v3` for accents and noise; `--prompt "<names, jargon or a few lines in the spelling you want>"`, with `--condition` to keep that style past the first 30 s).
 - **Platform auto-captions (instant):** for non-English sources, and English ones too, YouTube's auto-captions carry per-word timings. `.venv/bin/yt-dlp --skip-download --write-auto-subs --sub-langs "<lang>-orig,<lang>" -o podcasts/<slug>/src <url>`, then `.venv/bin/python tools/podcast/vtt_words.py podcasts/<slug>/src.<lang>.vtt podcasts/<slug>/words.json`.
 
 ## 2. Make the Shorts

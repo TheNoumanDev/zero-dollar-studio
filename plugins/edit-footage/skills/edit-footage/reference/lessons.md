@@ -13,6 +13,10 @@ Problems found while editing raw talking-head footage with this pipeline, and th
 - **Lists look like false starts.** "don't forget to subscribe, don't forget to click the follow button" was cut as a restart. A comma-ended fragment now counts only when the retry repeats all of it.
 - **Hyphenated words come apart** ("to" + "-do"). cut.py glues them back for the captions.
 
+- **Whisper `small` can't do Hinglish.** Language `hi` gave garbled Devanagari; `en` silently translated ("na editing app" → "no dating app"). `large-v3-turbo` + `hi` + conditioning on previous text + a Roman Hinglish prompt fixed it, but only reliably when the prompt was the speaker's own script: a generic Hinglish prompt still translated half the lines, and the same settings flipped between Roman and English on tiny input changes (wav vs mp4, VAD on/off).
+- **Without conditioning, Roman Hinglish drifts to Devanagari** after ~30 s: the prompt only steers the first window.
+- **Whisper invents outros over trailing silence**: "Thank you for watching", "Don't forget to subscribe", "Bye!", once "Thank you" ×5 in one second. takes.py drops lines with no voice under them or after the last speech.
+
 ## Takes
 
 - **The last take is usually the best, not always.** Speakers often nail delivery on take 1 and then over-think it. Offer the alternative when takes differ in wording, not only in completeness.

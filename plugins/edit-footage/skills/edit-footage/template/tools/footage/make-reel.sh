@@ -22,6 +22,24 @@ step() { printf '\033[36m▶ %s\033[0m\n' "$1"; }
 [[ -f $FOLDER/footage.json ]] || { echo "❌ $FOLDER needs footage.json (copy footage/example/footage.json)"; exit 1; }
 [[ -f tools/podcast/prepare.py && -f $CLIPS ]] || { echo "❌ snipshorts tools missing: set them up first (snipshorts skill §0)"; exit 1; }
 LANG_CODE=$($PY -c "import json,sys; print(json.load(open(sys.argv[1])).get('language', 'en'))" "$FOLDER/footage.json")
+MODEL=$($PY -c "import json,sys; print(json.load(open(sys.argv[1])).get('model', ''))" "$FOLDER/footage.json")
+# footage.json "script": the text you read from (inline, or a file path), spelled the way captions should be.
+# The opening ~600 characters become Whisper's prompt.
+SCRIPT=$($PY -c "
+import json, sys
+from pathlib import Path
+s = json.load(open(sys.argv[1])).get('script', '')
+print((Path(s).read_text() if s and Path(s).is_file() else s).strip()[:600])" "$FOLDER/footage.json")
+if [[ $LANG_CODE == hinglish ]]; then
+  # Hindi/Urdu mixed with English, in Roman script. Whisper small garbles it (lang hi) or silently translates it
+  # (lang en: "na editing app" -> "no dating app"). large-v3-turbo, lang hi, conditioning on the previous text
+  # (without it the script drifted to Devanagari after ~30 s) and a prompt in the speaker's own words: a generic
+  # Hinglish prompt still came out half translated into English, the speaker's script came out clean.
+  TX=(--model "${MODEL:-large-v3-turbo}" --lang hi --condition
+      --prompt "${SCRIPT:-Okay, so aaj main aapko ek cheez dikhata hoon. Yeh bilkul free hai, aur sach mein kaam karta hai. Ek baar try karo, link bio mein hai.}")
+else
+  TX=(--lang "$LANG_CODE" --verbatim ${MODEL:+--model "$MODEL"})
+fi
 
 if [[ -z ${RENDER_ONLY:-} ]]; then
   if [[ ! -f $FOLDER/source.mp4 ]]; then
@@ -30,7 +48,7 @@ if [[ -z ${RENDER_ONLY:-} ]]; then
   fi
   if [[ ! -f $FOLDER/words.json ]]; then
     step "transcribe, keeping fillers and false starts"
-    $PY tools/podcast/transcribe.py "$FOLDER/source.mp4" "$FOLDER/words.json" --lang "$LANG_CODE" --verbatim
+    $PY tools/podcast/transcribe.py "$FOLDER/source.mp4" "$FOLDER/words.json" "${TX[@]}"
   fi
   if [[ -n ${RETAKE:-} || ! -f $FOLDER/takes.json ]]; then
     step "best take of each line"
@@ -52,8 +70,14 @@ grep -q "\"$ID\"" $CLIPS || perl -pi -e "s/(PODCAST_SHORTS: string\[\] = \[)/\$1
 if [[ -z ${RENDER_ONLY:-} ]]; then
   step "$ID: cut the takes, jump-cut pauses, frame the face"
   $PY tools/footage/cut.py "$FOLDER" --id "$ID"
-  # Non-English: captions in Latin script (the caption font has Latin glyphs only).
-  [[ $LANG_CODE == en ]] || $PY tools/podcast/romanize.py "$ID"
+  # Non-English: captions in Latin script (the caption font has Latin glyphs only). Hinglish is Roman already:
+  # only words that slipped into Devanagari/Urdu script go through romanize.py.
+  if [[ $LANG_CODE == hinglish ]]; then
+    $PY -c "import json, re, sys; ws = json.load(open(sys.argv[1]))['words']; sys.exit(0 if any(re.search('[\u0600-\u06ff\u0900-\u097f]', w['w']) for w in ws) else 1)" \
+      "public/podcast-shorts/$ID/clip.json" && $PY tools/podcast/romanize.py "$ID"
+  elif [[ $LANG_CODE != en ]]; then
+    $PY tools/podcast/romanize.py "$ID"
+  fi
   if [[ -z ${SKIP_PLAN:-} || ! -f public/podcast-shorts/$ID/plan.json ]]; then
     step "$ID: the agent writes the edit plan"
     $PY tools/podcast/plan.py "$ID"

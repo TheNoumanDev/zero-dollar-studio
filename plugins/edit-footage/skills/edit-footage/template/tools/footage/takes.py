@@ -33,8 +33,20 @@ LOOKAHEAD = 3       # a retake can come up to 3 lines later
 FILLERS = {"um", "umm", "uh", "uhh", "uhm", "erm", "er", "ah", "eh", "hmm", "hm", "mm", "mhm"}
 META = re.compile(r"\b(let me (start|try|do (that|this|it)|say (that|this|it))( again| over)?|start(ing)? (again|over)|"
                   r"one more time|(take|try) (two|three|four|\d+)|cut (that|it)|scratch that|from the top|do (that|it) again)\b")
-LEAD_IN = {"okay", "ok", "alright", "right", "so", "yeah"}
-CHATTER = {"okay", "ok", "alright", "right", "sorry", "so", "yeah", "cool", "again", "wait", "no", "hold on", "one sec"}
+# Hinglish restarts ("Apni, dubaara se", "sorry phir se", "ruko"). Only in lines of 4 words or fewer:
+# "phir se try karo" is content.
+META_HI = re.compile(r"\b(d[ouv]+b+a+r+a+ s[ea]|ph?ir se|fir se|ruko|ek (minute|min|second|sec)|ek baar aur|wapas se)\b")
+LEAD_IN = {"okay", "ok", "alright", "right", "so", "yeah", "toh", "acha", "accha"}
+CHATTER = {"okay", "ok", "alright", "right", "sorry", "so", "yeah", "cool", "again", "wait", "no", "hold on", "one sec",
+           "acha", "accha", "haan", "theek hai", "chalo"}
+LONG_LINE = 20      # a line this long also breaks at a 0.5 s pause (unpunctuated Devanagari came out as one 40 s line)
+# Common Hindi/Urdu words: a "hinglish" transcript where most lines have none of them was likely translated.
+HINDI_WORDS = {"hai", "hain", "ki", "ka", "ke", "ko", "se", "mein", "main", "mera", "meri", "yeh", "ye", "woh", "wo",
+               "aur", "nahi", "nahin", "bhi", "kya", "toh", "to", "karo", "karta", "kar", "ek", "par", "pe", "hi", "na"}
+# Whisper invents these over silence, mostly at the end of a file.
+GHOSTS = re.compile(r"^(thank you( so much)?( for watching)?|thanks for watching|bye( bye| for now)?|"
+                    r"(don't forget to |please )?(like|subscribe|share).*|see you (in the )?next (time|video).*|"
+                    r"i will see you.*|you)$")
 
 
 def norm(w):
@@ -42,7 +54,7 @@ def norm(w):
 
 
 def ends_line(w):
-    return w.rstrip("\"')").endswith((".", "?", "!"))
+    return w.rstrip("\"')").endswith((".", "?", "!", "।", "॥", "۔", "؟"))
 
 
 def flat_words(folder: Path):
@@ -52,7 +64,8 @@ def flat_words(folder: Path):
 def split_lines(words):
     lines, cur = [], []
     for i, w in enumerate(words):
-        if cur and w["s"] - words[i - 1]["e"] > BREAK:
+        gap = w["s"] - words[i - 1]["e"] if i else 0.0
+        if cur and (gap > BREAK or (len(cur) >= LONG_LINE and gap > 0.5)):
             lines.append(cur)
             cur = []
         cur.append(i)
@@ -80,12 +93,12 @@ def false_starts(idx, words):
                 hesitated = words[idx[j]]["s"] - prev["e"] >= RESTART_GAP or prev["w"].endswith(("-", "—", "–", "...", "…"))
                 # Said straight through, a repeat of 3+ words with no punctuation in between is still a retry.
                 unbroken = n >= 3 and not any(w[-1] in ",.;:?!" for w in frag)
-                # "don't forget to subscribe, don't forget to click" is a list: a comma-ended fragment is only
-                # a false start when the retry repeats all of it.
+                # "don't forget to subscribe, don't forget to click" is a list: a comma-ended fragment that
+                # differs from the retry in 1-2 words is a list item, not a false start.
                 m = 0
                 while j + m < len(toks) and i + m < j and toks[i + m] == toks[j + m]:
                     m += 1
-                if (hesitated or unbroken) and not (prev["w"].endswith(",") and m < j - i):
+                if (hesitated or unbroken) and not (prev["w"].endswith(",") and 0 < j - i - m <= 2):
                     hit = j
                     break
             if hit:
@@ -106,8 +119,26 @@ def similar(a, b):
     return min(len(a), len(b)) >= 3 and SequenceMatcher(None, a, b).ratio() >= 0.6
 
 
-def select(words):
+def ghost(line, spoken, voiced, total):
+    """A line Whisper made up over silence: faster than anyone talks, (almost) no voice under it, after the last
+    real speech, or a stock outro ("Thank you for watching", "Bye!") squeezed into the last seconds."""
+    dur = line["end"] - line["start"]
+    rate = len(spoken) / max(dur, 0.01)
+    if dur < 0.12 or rate > 8:
+        return True
+    vf = 1.0
+    if voiced is not None:
+        a, b = int(line["start"] / audio.HOP), max(int(line["start"] / audio.HOP) + 1, int(line["end"] / audio.HOP))
+        vf = float(voiced[a:b].mean()) if b <= len(voiced) else 0.0
+        last_voice = audio.HOP * (len(voiced) - 1 - int(voiced[::-1].argmax())) if voiced.any() else 0.0
+        if vf < 0.2 or line["start"] > last_voice + 0.2:
+            return True
+    return bool(GHOSTS.match(" ".join(spoken))) and line["start"] > total - 3.0 and (rate > 5 or vf < 0.6)
+
+
+def select(words, voiced=None):
     lines = []
+    total = len(voiced) * audio.HOP if voiced is not None else words[-1]["e"]
     for n, idx in enumerate(split_lines(words)):
         text = " ".join(words[i]["w"] for i in idx)
         toks = [norm(words[i]["w"]) for i in idx]
@@ -116,6 +147,10 @@ def select(words):
                 "end": words[idx[-1]]["e"], "keep": True, "why": "", "cut": []}
         if not spoken:
             line.update(keep=False, why="filler")
+        elif ghost(line, spoken, voiced, total):
+            line.update(keep=False, why="ghost: no speech under it")
+        elif len(spoken) <= 4 and META_HI.search(" ".join(toks)):
+            line.update(keep=False, why="meta")
         # Only short lines can be meta: "try it one more time and you'll see" is content.
         elif (len(spoken) <= 8 and META.search(" ".join(toks))) or " ".join(spoken) in CHATTER:
             line.update(keep=False, why="meta")
@@ -243,13 +278,19 @@ def main():
             print(f"word timings: {moved} words trimmed to their voiced part")
             words = flat_words(folder)
         quiet = audio.untranscribed(words, voiced)
-        lines = select(words)
+        lines = select(words, voiced)
     flips = {int(n): True for n in args.keep.split(",") if n} | {int(n): False for n in args.drop.split(",") if n}
     for ln in lines:
         if ln["n"] in flips:
             ln["keep"], ln["why"] = flips[ln["n"]], "" if flips[ln["n"]] else "dropped by hand"
     out.write_text(json.dumps({"lines": lines, "untranscribed": quiet}, indent=1, ensure_ascii=False))
     show(lines, words, cfg.get("target", [30, 75]))
+    if cfg.get("language") == "hinglish":
+        long = [ln for ln in lines if ln["w1"] - ln["w0"] >= 5]
+        english = [ln for ln in long if not {norm(words[i]["w"]) for i in range(ln["w0"], ln["w1"])} & HINDI_WORDS]
+        if long and len(english) > 0.5 * len(long):
+            print(f"⚠️  {len(english)} of {len(long)} lines have no Hindi words: Whisper may have translated your Hinglish "
+                  "into English. Add your script as footage.json \"script\", delete words.json and rerun.")
     for a, b in quiet:
         print(f"⚠️  {a:.1f}-{b:.1f} s: speech with no transcript (another language than \"{cfg.get('language', 'en')}\"? "
               "mumbling?). It is left out. For a bilingual recording, make one reel per language: trim the file, "
