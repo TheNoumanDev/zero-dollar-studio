@@ -5,7 +5,7 @@
     "url": "https://github.com/TheNoumanDev"
   },
   "metadata": {
-    "description": "Claude Code skills from @0x45.dev for making YouTube videos for $0: make-video, snipshorts (free OpusClip alternative) and cartoonsmith."
+    "description": "Claude Code skills from @0x45.dev for making YouTube videos for $0: make-video, snipshorts (free OpusClip alternative), cartoonsmith and edit-footage."
   },
   "plugins": [
     {
@@ -40,6 +40,17 @@
         "url": "https://github.com/TheNoumanDev"
       },
       "homepage": "https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/cartoonsmith"
+    },
+    {
+      "name": "edit-footage",
+      "source": "./plugins/edit-footage",
+      "description": "Your own raw talking-head recording → a finished vertical reel: best take of every line, false starts, fillers and pauses cut, captions, zooms, SFX. Free and local. Add-on to make-video and snipshorts.",
+      "category": "media",
+      "author": {
+        "name": "TheNoumanDev",
+        "url": "https://github.com/TheNoumanDev"
+      },
+      "homepage": "https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/edit-footage"
     }
   ]
 }

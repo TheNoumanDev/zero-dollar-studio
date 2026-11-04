@@ -1,0 +1,14 @@
+{
+  "name": "edit-footage",
+  "displayName": "edit-footage",
+  "description": "Your own raw talking-head recording → a finished vertical reel: best take of every line, false starts, fillers and pauses cut, face framed in 9:16, word-synced captions, zooms, graphics, SFX, noise removal and a -14 LUFS master. Free and local. Add-on to make-video and snipshorts.",
+  "version": "0.1.0",
+  "author": {
+    "name": "TheNoumanDev",
+    "url": "https://github.com/TheNoumanDev"
+  },
+  "homepage": "https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/edit-footage",
+  "repository": "https://github.com/TheNoumanDev/zero-dollar-studio",
+  "license": "MIT",
+  "keywords": ["talking-head", "reels", "shorts", "best-take", "jump-cut", "captions", "remotion", "video-editing", "free"]
+}

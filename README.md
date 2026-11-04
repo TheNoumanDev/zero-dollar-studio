@@ -74,6 +74,7 @@ Doing the same with paid tools costs about **$50 a month**, and the free tiers s
 | You'd normally pay for | Paid tool (cheapest plan) | Here |
 |---|---|---|
 | Podcast → Shorts clipping | OpusClip: $15/mo (free plan is watermarked) | **snipshorts**: $0, no watermark |
+| Cutting your own takes into a reel | an editor, or hours by hand | **edit-footage**: $0, best take of each line |
 | Cloning your voice | ElevenLabs: $6/mo (Starter) | **Chatterbox**, on your Mac: $0 |
 | A talking AI presenter | HeyGen: $29/mo (free plan is watermarked) | **JoyVASA + LivePortrait**: $0 *(make-video v0.2)* |
 | Captions, music, editing | an editor subscription, or hours by hand | **make-video**: $0, automatic |
@@ -103,6 +104,7 @@ Your coding agent does the thinking: script, fact checks, moment picking, edit p
 |---|---|
 | 🎥 [**make-video**](plugins/make-video/) | Idea → script → voice → captions → music → Remotion render → QA → ready to post |
 | ✂️ [**snipshorts**](plugins/snipshorts/) | A podcast or interview link → vertical Shorts with the speaker tracked, captions, SFX and posting copy. **A free, open-source OpusClip alternative with no watermark** |
+| 🎬 [**edit-footage**](plugins/edit-footage/) | Your own raw talking-head recording → a finished reel: the best take of every line, false starts, "um"s and pauses cut, face framed, captions, zooms and SFX |
 | 🎨 [**cartoonsmith**](plugins/cartoonsmith/) | Voiced cartoon episodes with recurring characters: talking rigs from your own character art, lip sync, captions and music |
 | 📘 [**guides/**](guides/) | Free PDF guides from the videos: Claude desktop cheat sheet, the $0 video stack, the AI avatar build, the daily pipeline |
 
@@ -133,6 +135,7 @@ Type these in Claude Code (they're slash commands, not terminal commands):
 /plugin install make-video@zero-dollar-studio
 /plugin install snipshorts@zero-dollar-studio     # optional add-on
 /plugin install cartoonsmith@zero-dollar-studio   # optional add-on
+/plugin install edit-footage@zero-dollar-studio   # optional add-on (needs snipshorts)
 /reload-plugins
 ```
 
@@ -197,7 +200,7 @@ npx skills add TheNoumanDev/zero-dollar-studio                     # asks which 
 2. **OK the downloads.** The first time, your agent checks your Mac, lists what it needs (about 6 GB of free models, each with its size) and **waits for your OK**.
 3. **Watch it set up.** It sets up a video project, renders the Fridge Drama example to prove everything works, then makes your video.
 
-snipshorts and cartoonsmith are add-ons: they copy their tools into the project that make-video sets up, so install make-video too.
+snipshorts, cartoonsmith and edit-footage are add-ons: they copy their tools into the project that make-video sets up, so install make-video too. edit-footage also uses the snipshorts tools.
 
 ## 🆓 The free stack
 
@@ -238,7 +241,7 @@ No, on purpose. It writes the video, title, caption and tags to a folder, and yo
 - [x] Works in other agents through `npx skills add`
 - [x] make-video: karaoke caption style, smarter caption gap fill with a match-rate report, QA for the Reels right-side button rail
 - [x] snipshorts: scored shortlist you pick from, caption styles (bold, bounce, clean), captions that avoid faces, screen recordings that follow the cursor, noise removal, per-platform encodes, house-style notes
-- [ ] **edit-footage:** turn your own talking-head recording into a reel (best take of each line, no pauses or false starts)
+- [x] **edit-footage:** turn your own talking-head recording into a reel (best take of each line, no pauses or false starts)
 - [ ] **make-video v0.2:** optional AI talking face (JoyVASA + LivePortrait, no non-commercial face models)
 - [ ] Full runs tested in Codex and Gemini CLI
 - [ ] snipshorts: cover maker and upscaling

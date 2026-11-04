@@ -1,0 +1,13 @@
+{
+  "local": ["footage/example/IMG_0001.MOV", "footage/example/IMG_0002.MOV"],
+  "title": "Why I stopped watching tutorials",
+  "about": "A developer explains, to camera, why building small projects taught them more than tutorials",
+  "language": "en",
+  "target": [30, 75],
+  "hook": "",
+  "captionStyle": "bold",
+  "denoise": true,
+  "grade": "",
+  "watermark": "",
+  "endCard": null
+}
