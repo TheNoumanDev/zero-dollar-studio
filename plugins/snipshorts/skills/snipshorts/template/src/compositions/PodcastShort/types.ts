@@ -49,12 +49,20 @@ export type Graphic =
   | { type: "callout"; t: number; dur: number; text: string; icon?: string }
   | { type: "quote"; t: number; dur: number; text: string };
 
+/** Accent effects from Fx.tsx at the captions: particles (burst, confetti, smoke, ring) or a mark drawn on (underline, circle, arrow, check). */
+export type FxBeat = {
+  t: number;
+  kind: "burst" | "confetti" | "smoke" | "ring" | "underline" | "circle" | "arrow" | "check";
+  color?: string;
+};
+
 export type Plan = {
   hook: string;
   /** Indices into clip.words that get the highlight colour and a bump. */
   emphasis: number[];
   zooms: Zoom[];
   graphics: Graphic[];
+  fx?: FxBeat[];
 };
 
 export type PodcastShortProps = {

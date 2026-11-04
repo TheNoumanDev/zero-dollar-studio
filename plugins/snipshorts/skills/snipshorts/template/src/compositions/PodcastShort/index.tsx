@@ -16,6 +16,7 @@ import { cropAt, framePanel, frameScreen, frameSource, jumpZoomAt, zoomAt } from
 import { Captions } from "./Captions";
 import { NameTags } from "./NameTags";
 import { Graphics } from "./Overlays";
+import { FxLayer } from "./FxLayer";
 import { Rewind, rewindVideoStyle } from "./Rewind";
 import { EndCard, END_SECONDS } from "./EndCard";
 import { Watermark } from "./Watermark";
@@ -280,6 +281,7 @@ export const PodcastShort: React.FC<PodcastShortProps> = ({
       {t < clip.duration ? (
         <>
           <Graphics graphics={plan.graphics} split={Boolean(split)} qa={qa} />
+          <FxLayer fx={plan.fx ?? []} y={captionY} />
           {/* A kinetic slam says the same words bigger, and the rewind label owns the centre: both replace the captions. */}
           {plan.graphics.some(
             (g) => g.type === "kinetic" && t >= g.t && t <= g.t + g.dur,

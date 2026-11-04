@@ -1,4 +1,5 @@
-"""Sound effects for a podcast Short, keyed to its plan: whoosh on zooms and slides, pop on graphics.
+"""Sound effects for a podcast Short, keyed to its plan: whoosh on zooms and slides, pop on graphics,
+sparkle, poof or marker scratch on accent effects.
 
 Usage: .venv/bin/python tools/podcast/sfx.py <clip-id>
 Writes public/podcast-shorts/<id>/sfx.wav (48 kHz stereo, peaks around -6 dBFS).
@@ -51,6 +52,16 @@ def rewind(dur=0.75):
     return ((chirp + hiss) * env).astype(np.float32)
 
 
+def scribble(dur=0.35):
+    """Marker on paper: short bursts of bright noise, one per stroke wobble."""
+    n = int(dur * SR)
+    tt = np.linspace(0, dur, n, endpoint=False)
+    noise = rng.standard_normal(n).astype(np.float32)
+    bright = noise - np.convolve(noise, np.ones(6) / 6, mode="same")
+    env = (0.55 + 0.45 * np.sin(2 * np.pi * 14 * tt)) * np.minimum(1, tt * 40) * np.exp(-np.maximum(0, tt - dur * 0.8) * 30)
+    return (bright * env * 0.6).astype(np.float32)
+
+
 def main():
     d = ROOT / "public/podcast-shorts" / sys.argv[1]
     clip = json.loads((d / "clip.json").read_text())
@@ -82,6 +93,21 @@ def main():
                 place(pop(900 + i * 150), g["t"] + i * 0.09, 0.45)
         else:
             place(whoosh(0.4), g["t"] - 0.1, 0.6)
+    for f in plan.get("fx", []):
+        k, t = f["kind"], f["t"]
+        if k == "burst":
+            place(pop(1400), t, 0.5)
+            place(boom(0.3), t, 0.35)
+        elif k == "confetti":
+            for i in range(6):
+                place(pop(1000 + i * 180), t + i * 0.06, 0.35)
+        elif k == "smoke":
+            place(whoosh(0.6, up=False), t, 0.6)
+        elif k == "ring":
+            place(whoosh(0.3), t - 0.1, 0.5)
+            place(ding(), t, 0.5)
+        else:
+            place(scribble(), t, 0.7)
     if clip.get("teaserEnd"):
         place(rewind(), clip["teaserEnd"] - 0.35, 0.9)
     for t in [x for x in clip.get("splices", []) if abs(x - (clip.get("teaserEnd") or -9)) > 0.1]:

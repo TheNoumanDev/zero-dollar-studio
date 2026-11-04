@@ -66,6 +66,7 @@ Then **list every factual claim with a source link** under the script, mark anyt
 
 **Craft checklist** for Shorts/Reels:
 - **Progress you can see.** Step-by-step videos get `<StepCard steps={[{at: 0, title: "Download it"}, …]} />` (`src/components/StepCard.tsx`): a "STEP 2/4" pill and a segmented bar.
+- **Accent effects (code-drawn, no assets).** `<Particles kind="burst|confetti|smoke|ring" x={540} y={960} start={2.4} />` for a spark burst, confetti, a smoke puff or a glowing shockwave on a reveal; `<DrawOn kind="underline|circle|arrow|check" x y w h start={3} />` draws a marker stroke on (`src/components/Fx.tsx`). Use them on the few beats that earn it, not every line.
 - **Karaoke captions (optional style).** `<Karaoke words={captions} keywords={["free"]} style={{left: 60, right: 140, top: 1180}} />` (`src/components/Karaoke.tsx`): the whole 2–5 word chunk is on screen, spoken words solid, upcoming ones grey, keywords and stressed words in the accent colour, so viewers can read ahead on muted autoplay. `background` gives a light card look; pass `qa` through so the layout check sees it.
 - **Series chip.** An episode marker top-left ("PART 2") makes posts feel bingeable.
 - **Show the contrast.** A before/after or "us vs them" works better as a two-column card than as speech.

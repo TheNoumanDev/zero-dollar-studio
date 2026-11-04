@@ -6,6 +6,7 @@ Reads public/podcast-shorts/<id>/clip.json, writes public/podcast-shorts/<id>/pl
 Every beat is anchored to a word index, then converted to seconds here, so timing is word-accurate.
 """
 import json
+import re
 import sys
 from pathlib import Path
 import llm
@@ -32,6 +33,11 @@ Design the edit. Everything is anchored to a word index (the beat starts when th
    - callout: short label with an icon emoji (e.g. "9 YEARS TOGETHER" with ⏳), dur 1.5-2.2 s
    - quote: the single most quotable sentence (max 12 words, exact words from the transcript), dur 2.5-4 s
    Never before 2.6 s (hook is on screen). Never two graphics at once. Leave 0.5 s between graphics.
+4b. fx: 2-5 short accent effects on the strongest beats, separate from graphics (they may sit on a zoom):
+   burst (sparks: a punchline, a reveal), confetti (a win, good news), smoke (something failing, gone, "poof"),
+   ring (a mind-blown or magic moment), underline (a key claim), circle (the single most important phrase),
+   arrow (pointing at "this one" / "that's the trick"), check (agreement, the right answer). color optional (hex).
+   At least 2 s apart, never during a kinetic graphic. Fewer is better than forced: skip a beat that doesn't earn one.
 5. Something must change on screen at least every 3 seconds across zooms and graphics combined.
 6. fixes: the words come from speech recognition and some are misheard (e.g. "called" for "cool", wrong names,
    "B-com" for "B.Com"). Return {{index, word}} for each word that is clearly wrong in context, with the word that
@@ -53,10 +59,13 @@ SCHEMA = {
             "text": {"type": "string"}, "value": {"type": "number"}, "prefix": {"type": "string"}, "suffix": {"type": "string"},
             "label": {"type": "string"}, "emoji": {"type": "string"}, "icon": {"type": "string"}},
             "required": ["at", "dur", "type"]}},
+        "fx": {"type": "array", "items": {"type": "object", "properties": {
+            "at": ANCHOR, "kind": {"enum": ["burst", "confetti", "smoke", "ring", "underline", "circle", "arrow", "check"]},
+            "color": {"type": "string"}}, "required": ["at", "kind"]}},
         "fixes": {"type": "array", "items": {"type": "object", "properties": {
             "index": {"type": "integer"}, "word": {"type": "string"}}, "required": ["index", "word"]}},
     },
-    "required": ["hook", "emphasis", "zooms", "graphics", "fixes"],
+    "required": ["hook", "emphasis", "zooms", "graphics", "fx", "fixes"],
 }
 
 
@@ -126,11 +135,22 @@ def main():
         graphics.append(g)
         last_end = t + g["dur"]
 
+    # Accent effects (FxLayer.tsx): at least 2 s apart, none on a kinetic slam (it owns the captions' spot).
+    slams = [(g["t"] - 0.3, g["t"] + g["dur"]) for g in graphics if g["type"] == "kinetic"]
+    fx = []
+    for f in sorted(raw.get("fx", []), key=lambda f: f["at"]):
+        t = at(f["at"])
+        if t < quiet or t > end - 0.8 or (fx and t < fx[-1]["t"] + 2) or any(a <= t <= b for a, b in slams):
+            continue
+        fx.append({"t": t, "kind": f["kind"], **({"color": f["color"]} if re.fullmatch(r"#[0-9A-Fa-f]{6}", f.get("color") or "") else {})})
+    fx = fx[:6]
+
     plan = {"hook": raw["hook"], "emphasis": sorted({i for i in raw["emphasis"] if 0 <= i < n}),
-            "zooms": zooms, "graphics": graphics}
+            "zooms": zooms, "graphics": graphics, "fx": fx}
     (d / "plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False))
     print(f"{clip_id}: hook '{plan['hook']}', {len(zooms)} zooms, {len(graphics)} graphics "
           f"({', '.join(g['type'] for g in graphics)}), {len(plan['emphasis'])} emphasised words, "
+          f"{len(fx)} fx ({', '.join(f['kind'] for f in fx) or 'none'}), "
           f"caption fixes: {', '.join(fixed) or 'none'}")
 
 
