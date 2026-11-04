@@ -23,6 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/podcast"))
+sys.path.insert(0, str(Path(__file__).parent))
+import audio  # noqa: E402
 import prepare  # noqa: E402  (snipshorts: keep_ranges, FPS)
 
 BREAK = 0.9         # a pause this long ends a line even without punctuation
@@ -71,11 +73,21 @@ def false_starts(idx, words):
         hit = None
         for n in (4, 3, 2):
             for j in range(i + n, min(i + n + 8, len(toks) - n + 1)):
-                if toks[i:i + n] == toks[j:j + n] and "" not in toks[i:i + n]:
-                    prev = words[idx[j - 1]]
-                    if words[idx[j]]["s"] - prev["e"] >= RESTART_GAP or prev["w"].endswith(("-", "—", "–", "...", "…")):
-                        hit = j
-                        break
+                if toks[i:i + n] != toks[j:j + n] or "" in toks[i:i + n]:
+                    continue
+                prev = words[idx[j - 1]]
+                frag = [words[k]["w"] for k in idx[i:j]]
+                hesitated = words[idx[j]]["s"] - prev["e"] >= RESTART_GAP or prev["w"].endswith(("-", "—", "–", "...", "…"))
+                # Said straight through, a repeat of 3+ words with no punctuation in between is still a retry.
+                unbroken = n >= 3 and not any(w[-1] in ",.;:?!" for w in frag)
+                # "don't forget to subscribe, don't forget to click" is a list: a comma-ended fragment is only
+                # a false start when the retry repeats all of it.
+                m = 0
+                while j + m < len(toks) and i + m < j and toks[i + m] == toks[j + m]:
+                    m += 1
+                if (hesitated or unbroken) and not (prev["w"].endswith(",") and m < j - i):
+                    hit = j
+                    break
             if hit:
                 break
         if hit:
@@ -114,12 +126,25 @@ def select(words):
             if len(idx) > 1 and toks[0] in LEAD_IN and words[idx[1]]["s"] - words[idx[0]]["e"] >= 0.4:
                 cut.add(idx[0])
             line["cut"] = sorted(cut)
-            line["_toks"] = [norm(words[i]["w"]) for i in idx if i not in cut and norm(words[i]["w"]) not in FILLERS]
+            line["_idx"] = [i for i in idx if i not in cut]
+            line["_toks"] = [norm(words[i]["w"]) for i in line["_idx"]]
             line["_done"] = ends_line(words[idx[-1]]["w"])
         lines.append(line)
 
-    # Retake groups: chain each spoken line to a similar one within the next LOOKAHEAD spoken lines.
     spoken = [ln for ln in lines if ln["keep"]]
+    # A restart across a pause: "link in my bio, go try it out and [pause] go try it on your own..." cuts
+    # the abandoned tail of the first line when the next line opens with the same three words.
+    for a, b in zip(spoken, spoken[1:]):
+        head = b["_toks"][:3]
+        for p in range(max(1, len(a["_toks"]) - 10), len(a["_toks"]) - 2):
+            if len(head) == 3 and a["_toks"][p:p + 3] == head:
+                tail = a["_idx"][p:]
+                if ends_line(words[tail[-1]]["w"]) and len(tail) > 6:
+                    break  # a finished sentence: the retake grouping below decides
+                a["cut"] = sorted(set(a["cut"]) | set(tail))
+                a["_idx"], a["_toks"] = a["_idx"][:p], a["_toks"][:p]
+                break
+    # Retake groups: chain each spoken line to a similar one within the next LOOKAHEAD spoken lines.
     group = {id(ln): k for k, ln in enumerate(spoken)}
     for a_i, a in enumerate(spoken):
         for b in spoken[a_i + 1:a_i + 1 + LOOKAHEAD]:
@@ -142,8 +167,8 @@ def select(words):
             if t is not best:
                 t.update(keep=False, why=f"retake {k + 1}/{len(takes)}, kept line {best['n']}")
     for ln in lines:
-        ln.pop("_toks", None)
-        ln.pop("_done", None)
+        for k in ("_toks", "_done", "_idx"):
+            ln.pop(k, None)
     return lines
 
 
@@ -205,15 +230,30 @@ def main():
     words = flat_words(folder)
     out = folder / "takes.json"
     if args.show or args.keep or args.drop:
-        lines = json.loads(out.read_text())["lines"]
+        saved = json.loads(out.read_text())
+        lines, quiet = saved["lines"], saved.get("untranscribed", [])
     else:
+        voiced = audio.envelope(folder / "source.mp4")
+        data = json.loads((folder / "words.json").read_text())
+        if data.get("refined") != audio.VERSION:
+            # Once: pull pauses Whisper hid inside words back out, so pauses and restarts show.
+            moved = audio.refine([w for s in data["segments"] for w in s["words"]], voiced)
+            data["refined"] = audio.VERSION
+            (folder / "words.json").write_text(json.dumps(data, ensure_ascii=False))
+            print(f"word timings: {moved} words trimmed to their voiced part")
+            words = flat_words(folder)
+        quiet = audio.untranscribed(words, voiced)
         lines = select(words)
     flips = {int(n): True for n in args.keep.split(",") if n} | {int(n): False for n in args.drop.split(",") if n}
     for ln in lines:
         if ln["n"] in flips:
             ln["keep"], ln["why"] = flips[ln["n"]], "" if flips[ln["n"]] else "dropped by hand"
-    out.write_text(json.dumps({"lines": lines}, indent=1, ensure_ascii=False))
+    out.write_text(json.dumps({"lines": lines, "untranscribed": quiet}, indent=1, ensure_ascii=False))
     show(lines, words, cfg.get("target", [30, 75]))
+    for a, b in quiet:
+        print(f"⚠️  {a:.1f}-{b:.1f} s: speech with no transcript (another language than \"{cfg.get('language', 'en')}\"? "
+              "mumbling?). It is left out. For a bilingual recording, make one reel per language: trim the file, "
+              "set \"language\", delete words.json and rerun.")
 
 
 if __name__ == "__main__":

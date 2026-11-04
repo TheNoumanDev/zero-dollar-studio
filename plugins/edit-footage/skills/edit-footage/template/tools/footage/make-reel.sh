@@ -64,9 +64,18 @@ step "$ID: render"
 FRAMES=()
 [[ -n ${SAMPLE:-} ]] && FRAMES=(--frames=0-$((SAMPLE * 30 - 1)))
 npx remotion render "$ID" "$OUT/$ID.raw.mp4" --log=warn --timeout=180000 --concurrency=2 ${FRAMES[@]+"${FRAMES[@]}"}
-# Master to -14 LUFS for Shorts/Reels.
-ffmpeg -y -v error -i "$OUT/$ID.raw.mp4" -c:v copy \
-  -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k "$OUT/$ID.mp4"
+# Master to -14 LUFS for Shorts/Reels: gain + peak limiter, repeated until within 0.3 LU. One-pass loudnorm
+# landed at -16.4 on a quiet phone voice mixed with SFX pops (+13 dB needed; the limiter eats some of it).
+lufs() { ffmpeg -hide_banner -i "$1" -af ebur128 -f null - 2>&1 | awk '/I:/ {i=$2} END {print i}'; }
+ffmpeg -y -v error -i "$OUT/$ID.raw.mp4" -vn -ar 48000 -c:a pcm_f32le "$OUT/$ID.a.wav"
+for _ in 1 2 3 4; do
+  G=$($PY -c "import sys; g = -14 - float(sys.argv[1]); print(round(g, 2) if abs(g) > 0.3 else '')" "$(lufs "$OUT/$ID.a.wav")")
+  [[ -z $G ]] && break
+  ffmpeg -y -v error -i "$OUT/$ID.a.wav" -af "volume=${G}dB,alimiter=limit=0.84:attack=5:release=50:level=false" \
+    -c:a pcm_f32le "$OUT/$ID.b.wav" && mv "$OUT/$ID.b.wav" "$OUT/$ID.a.wav"
+done
+ffmpeg -y -v error -i "$OUT/$ID.raw.mp4" -i "$OUT/$ID.a.wav" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k "$OUT/$ID.mp4"
+rm "${OUT:?}/${ID:?}.a.wav"
 rm "${OUT:?}/${ID:?}.raw.mp4"
 for P in ${PLATFORMS:-}; do
   case $P in

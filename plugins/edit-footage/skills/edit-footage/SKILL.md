@@ -54,7 +54,7 @@ GO=1 PLATFORMS="yt ig tiktok" …                    # also <slug>.yt.mp4, .ig.m
 |---|---|---|
 | Join | `tools/footage/ingest.py` (30 fps, upright, 48 kHz, `grade`) | `footage/<slug>/source.mp4` |
 | Transcript | `tools/podcast/transcribe.py --verbatim` (faster-whisper, keeps "um"s and restarts) | `footage/<slug>/words.json` |
-| Best takes | `tools/footage/takes.py` | `footage/<slug>/takes.json`, the printed script |
+| Best takes | `tools/footage/takes.py` (+ `audio.py` timing fixes) | `footage/<slug>/takes.json`, the printed script |
 | Cut + framing | `tools/footage/cut.py` (snipshorts `prepare.py`: jump cuts, `denoise`, face tracking) | `public/podcast-shorts/<slug>/source.mp4`, `clip.json` |
 | Edit plan | `tools/podcast/plan.py` (agent CLI) | `public/podcast-shorts/<slug>/plan.json` |
 | SFX | `tools/podcast/sfx.py` | `public/podcast-shorts/<slug>/sfx.wav` |
@@ -64,20 +64,24 @@ The reel's id is the slug; `make-reel.sh` adds it to `src/compositions/PodcastSh
 
 ## 3. How takes are picked
 
+- **Timings first.** Whisper hides pauses inside words ("go" lasting 2.2 s is a pause plus "go") and ends words early, which clips last syllables at a cut. `tools/footage/audio.py` fixes both once from the audio's loudness (`"refined"` in words.json), so pauses and restarts show and cuts keep whole words.
 - **Lines** end at `.` `?` `!` or a pause over 0.9 s.
 - **Meta lines** go: "let me start again", "one more time", "cut that", "take two", and a lone "okay" / "sorry" / "wait". A warm-up "okay," or "so," before a pause is trimmed off the line.
-- **False starts inside a line** go: "the best way to… the best way to learn" keeps the second try, when the repeat follows a 0.25 s hesitation or a dash. "The more you build, the more you learn" is kept (no hesitation).
+- **False starts inside a line** go: "the best way to… the best way to learn" keeps the second try, when the repeat follows a 0.25 s hesitation or a dash, or repeats 3+ words with no punctuation between (said straight through). A comma-ended fragment counts only when the retry repeats all of it, so lists ("don't forget to subscribe, don't forget to click…") and "the more you build, the more you learn" stay.
+- **Restarts across a pause**: "link in my bio, go try it out and [pause] go try it on…" cuts the abandoned tail of the first line.
 - **Retakes**: lines up to three apart that open the same way (first five words ≥ 80% alike) or share 60% of their words are takes of one line. The last take that finishes its sentence and isn't much shorter than the longest wins; the others show as `retake 1/3, kept line 9`.
 - **Fillers** (um, uh, erm, hmm, ah) are cut out of kept lines; pauses over 0.45 s shrink to 0.12 s (snipshorts' jump cuts, with framing alternating 1.0/1.12 so they read as edits).
 
-**Review the script.** It prints every line: ✓ kept (cut words dimmed in `[brackets]`), ✗ dropped with the reason, then the estimated length. Things to check: a better earlier take (the speaker may prefer take 1's delivery: `--keep 2 --drop 4`), two different lines that open alike and got merged, and a dropped line the story needs. For finer edits, change `keep` or `cut` (word indices into `words.json`) in `takes.json` by hand and run `takes.py … --show`. If the reel runs long, suggest which lines to drop, never cut on your own.
+**Untranscribed speech** is flagged under the script with its times: usually a part in another language than `language` (a bilingual recording), or mumbling. It is left out. For a bilingual take make one reel per language: trim the file, set `language`, delete `words.json`, rerun.
+
+**Review the script.** It prints every line: ✓ kept (cut words dimmed in `[brackets]`), ✗ dropped with the reason, then the estimated length. Things to check: lines you read out that aren't content (notes to yourself, stage directions: drop them), asides at the end ("wow, beautiful": cut those words in `takes.json`), a better earlier take (the speaker may prefer take 1's delivery: `--keep 2 --drop 4`), two different lines that open alike and got merged, and a dropped line the story needs. For finer edits, change `keep` or `cut` (word indices into `words.json`) in `takes.json` by hand and run `takes.py … --show`. If the reel runs long, suggest which lines to drop, never cut on your own.
 
 ## 4. Verify before delivering
 
 1. Re-transcribe the reel and read it back: `.venv/bin/python tools/podcast/transcribe.py out/reels/<slug>.mp4 /tmp/check.json` should read as the approved script, with no doubled words or clipped first syllables.
 2. Look at the contact sheet `out/reels/<slug>.sheet.png`: face framed, captions off the face, hook card and graphics not colliding.
 3. `.venv/bin/python tools/podcast/trackviz.py <slug> out/track.jpg 12` if the speaker moves around a lot.
-4. Loudness: `ffmpeg -i out/reels/<slug>.mp4 -af ebur128 -f null -` (about -14 LUFS).
+4. Loudness: `ffmpeg -i out/reels/<slug>.mp4 -af ebur128 -f null -` (about -14 LUFS; make-reel.sh repeats gain + limiter until it's within 0.3 LU).
 5. Watch every cut in the final 2 seconds of the reel: an ending on a breath or "so…" is the most common miss.
 
 ## 5. Deliver
@@ -98,11 +102,11 @@ More lessons: [reference/lessons.md](reference/lessons.md).
 
 | Step | Time |
 |---|---|
-| Join + transcript, 42 s raw recording (faster-whisper small, CPU) | ~25 s |
+| Join + transcript, 42-77 s raw recording (faster-whisper small, CPU) | ~25-40 s |
 | Best takes | instant |
-| Cut + face tracking, 23 s reel | ~15 s |
+| Cut + face tracking, 23-38 s reel | ~15-25 s |
 | plan.py | ~40 s |
-| Render 23 s at 1080×1920 | ~1 min 30 s |
+| Render 38 s at 1080×1920, master | ~2 min |
 
 ---
 edit-footage is by [TheNoumanDev](https://github.com/TheNoumanDev), from [zero-dollar-studio](https://github.com/TheNoumanDev/zero-dollar-studio). Its author runs the [@0x45.dev](https://www.youtube.com/channel/UC2ahNqB5F_pp16O27rmlMtA) YouTube channel.
