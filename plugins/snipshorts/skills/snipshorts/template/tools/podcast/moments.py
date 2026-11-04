@@ -6,6 +6,9 @@ Reads podcasts/<slug>/words.json (Whisper word timestamps), asks the logged-in
 `claude` CLI (subscription, no API key) for self-contained 20-45 s moments that
 open on a hook, then snaps each to word boundaries.
 Writes podcasts/<slug>/moments.json.
+
+Review first: --shortlist 10 writes moments.candidates.json and prints a scored table (nothing renders);
+then --keep 2,5,7 moves those picks into moments.json and adds their cold-open teasers.
 """
 import argparse
 import json
@@ -42,12 +45,25 @@ Return ONLY JSON matching the schema. For each moment:
 - hook_title: 3-7 word on-screen title for the first 2 seconds (curiosity gap, no clickbait lies, no emojis)
 - why: one sentence on why this will perform
 - emotion: one of funny, vulnerable, inspiring, controversial, surprising, romantic, wholesome
-- score: 1-100 predicted virality
+- scores: rate each 0-10, harshly (5 is an average clip, 9+ is rare):
+    hook: the first sentence alone stops the scroll (bold claim, curiosity gap, surprise, pattern interrupt)
+    standalone: a stranger with zero context understands it
+    emotion: strong opinion, surprise, humour, vulnerability, passion
+    value: insight, facts or a usable idea per second
+    payoff: ends on a satisfying punchline, reveal, lesson or laugh
 - segments: optional, only when splicing; list of {{start, end, first_words, last_words}}. Then start/end/first_words/last_words describe the whole span (first segment start to last segment end).
 
 TRANSCRIPT:
 {transcript}
 """
+
+# How much each 0-10 score counts in the final 0-100 score: the hook decides whether anyone stays.
+WEIGHTS = {"hook": 0.30, "standalone": 0.25, "emotion": 0.20, "value": 0.15, "payoff": 0.10}
+
+
+def total(scores):
+    return round(10 * sum(w * min(10, max(0, scores.get(k, 0))) for k, w in WEIGHTS.items()))
+
 
 SCHEMA = {
     "type": "object",
@@ -64,13 +80,14 @@ SCHEMA = {
                     "hook_title": {"type": "string"},
                     "why": {"type": "string"},
                     "emotion": {"type": "string"},
-                    "score": {"type": "number"},
+                    "scores": {"type": "object", "properties": {k: {"type": "number"} for k in WEIGHTS},
+                               "required": list(WEIGHTS)},
                     "segments": {"type": "array", "items": {"type": "object", "properties": {
                         "start": {"type": "number"}, "end": {"type": "number"},
                         "first_words": {"type": "string"}, "last_words": {"type": "string"}},
                         "required": ["start", "end", "first_words", "last_words"]}},
                 },
-                "required": ["start", "end", "first_words", "last_words", "hook_title", "why", "emotion", "score"],
+                "required": ["start", "end", "first_words", "last_words", "hook_title", "why", "emotion", "scores"],
             },
         }
     },
@@ -143,6 +160,13 @@ def add_teaser(folder: Path, index: int, data):
           f"{' '.join(w['w'] for w in words if t['start'] - 0.05 <= w['s'] <= t['end'])} | {t['label']} | {t['why']}")
 
 
+def house_style(root: Path) -> str:
+    """The user's standing notes (podcasts/STYLE.md, e.g. "fewer zooms"), added to every prompt."""
+    f = root / "podcasts" / "STYLE.md"
+    notes = f.read_text().strip() if f.exists() else ""
+    return f"\n\nHOUSE STYLE (the user's standing notes; they override the rules above):\n{notes}\n" if notes else ""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("folder")
@@ -151,11 +175,16 @@ def main():
     ap.add_argument("--teaser", type=int, help="only add a cold-open teaser to moment N (0-based) in moments.json")
     ap.add_argument("--no-teasers", action="store_true", help="skip cold-open teasers")
     ap.add_argument("--append", action="store_true", help="keep moments.json and add new, non-overlapping moments")
+    ap.add_argument("--shortlist", type=int, help="pick this many candidates into moments.candidates.json for review")
+    ap.add_argument("--keep", help="move these candidates (1-based, e.g. 2,5,7) into moments.json")
     args = ap.parse_args()
     folder = Path(args.folder)
     data = json.loads((folder / "words.json").read_text())
     if args.teaser is not None:
         add_teaser(folder, args.teaser, data)
+        return
+    if args.keep:
+        keep(folder, args, data)
         return
     words = [w for s in data["segments"] for w in s["words"]]
     lines = "\n".join(f"[{s['start']:.1f}-{s['end']:.1f}] {s['text']}" for s in data["segments"])
@@ -166,11 +195,14 @@ def main():
     existing = json.loads((folder / "moments.json").read_text()) if args.append and (folder / "moments.json").exists() else []
     taken = ("Already clipped, do NOT pick these or anything overlapping them:\n" + "\n".join(
         f"- {m['start']:.0f}-{m['end']:.0f} s: {m['hook_title']}" for m in existing)) if existing else ""
-    prompt = PROMPT.format(minutes=round(data["duration"] / 60), count=args.count, context=context, transcript=lines, taken=taken)
+    prompt = PROMPT.format(minutes=round(data["duration"] / 60), count=args.shortlist or args.count, context=context, transcript=lines, taken=taken)
 
+    prompt += house_style(folder.resolve().parent.parent)
     result = ask_claude(prompt, SCHEMA)
 
     moments = []
+    for m in result["moments"]:
+        m["score"] = total(m["scores"])
     for m in sorted(result["moments"], key=lambda m: -m["score"]):
         if any(m["start"] < e["end"] and e["start"] < m["end"] for e in existing):
             print(f"skip overlapping pick: {m['hook_title']}")
@@ -191,11 +223,39 @@ def main():
         m.update(start=round(start, 2), end=round(end, 2), snapped=snapped,
                  duration=round(sum(g["end"] - g["start"] for g in m["segments"]) if m.get("segments") else end - start, 1))
         moments.append(m)
-        print(f"{m['score']:>3} {m['start']:7.1f}-{m['end']:7.1f} ({m['duration']:4.1f}s) "
-              f"{'snapped' if m['snapped'] else 'UNSNAPPED'} | {m['hook_title']} | {m['why']}")
+        if not args.shortlist:
+            print(f"{m['score']:>3} {m['start']:7.1f}-{m['end']:7.1f} ({m['duration']:4.1f}s) "
+                  f"{'snapped' if m['snapped'] else 'UNSNAPPED'} | {m['hook_title']} | {m['why']}")
+    if args.shortlist:
+        (folder / "moments.candidates.json").write_text(json.dumps(moments, indent=2, ensure_ascii=False))
+        table(moments)
+        print(f"\nPick: moments.py {folder} --keep 1,3,4" + (" --append" if args.append else ""))
+        return
     (folder / "moments.json").write_text(json.dumps(existing + moments, indent=2, ensure_ascii=False))
     if not args.no_teasers:
         for i in range(len(existing), len(existing) + len(moments)):
+            add_teaser(folder, i, data)
+
+
+def table(moments):
+    """Numbered candidates with their scores, for the user to choose from."""
+    print(f"{'#':>2} {'score':>5}  hook stand emo val pay  {'time':>13} {'len':>5}  title / why")
+    for i, m in enumerate(moments, 1):
+        sc = m["scores"]
+        print(f"{i:>2} {m['score']:>5}  {sc['hook']:>4} {sc['standalone']:>5} {sc['emotion']:>3} {sc['value']:>3} {sc['payoff']:>3}"
+              f"  {m['start']:6.0f}-{m['end']:<6.0f} {m['duration']:4.0f}s  {m['hook_title']}"
+              f"{'' if m['snapped'] else ' (UNSNAPPED)'}\n{'':>36}{m['why']}\n{'':>36}\u201c{m['first_words']} \u2026 {m['last_words']}\u201d")
+
+
+def keep(folder, args, data):
+    """Move the chosen candidates into moments.json (best score first) and add their teasers."""
+    cands = json.loads((folder / "moments.candidates.json").read_text())
+    picks = [cands[int(i) - 1] for i in args.keep.split(",")]
+    existing = json.loads((folder / "moments.json").read_text()) if args.append and (folder / "moments.json").exists() else []
+    (folder / "moments.json").write_text(json.dumps(existing + picks, indent=2, ensure_ascii=False))
+    print(f"moments.json: {len(existing)} kept + {len(picks)} new")
+    if not args.no_teasers:
+        for i in range(len(existing), len(existing) + len(picks)):
             add_teaser(folder, i, data)
 
 

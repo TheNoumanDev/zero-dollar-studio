@@ -87,7 +87,11 @@ def jump_cut(src: Path, ranges, out: Path):
                      f"afade=t=in:d=0.01,afade=t=out:st={max(0, b - a - 0.012):.4f}:d=0.012[a{i}];")
         labels.append(f"[v{i}][a{i}]")
     graph = "".join(parts) + "".join(labels) + f"concat=n={len(ranges)}:v=1:a=1[v][a]"
-    run(["ffmpeg", "-y", "-v", "error", "-i", str(src), "-filter_complex", graph, "-map", "[v]", "-map", "[a]",
+    if DENOISE:
+        # Built-in FFT denoiser that learns the noise floor as it goes (hum, hiss, room tone), plus a rumble cut.
+        graph += ";[a]highpass=f=80,afftdn=nf=-25:tn=1[ad]"
+    run(["ffmpeg", "-y", "-v", "error", "-i", str(src), "-filter_complex", graph, "-map", "[v]",
+         "-map", "[ad]" if DENOISE else "[a]",
          "-c:v", "libx264", "-crf", "16", "-preset", "fast", "-r", str(FPS),
          "-c:a", "aac", "-ar", "48000", "-b:a", "192k", "-movflags", "+faststart", str(out)])
 
@@ -140,6 +144,14 @@ def track(video: Path):
             shot += 1
         prev_hist = hist
         gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        # Screen recordings: the middle of what changed a little (cursor, typing). Big changes are scrolls or cuts.
+        moving = None
+        if prev_gray is not None:
+            changed = cv2.absdiff(gray, prev_gray) > 25
+            n = int(changed.sum())
+            if 6 <= n < 0.15 * changed.size:
+                ys, xs = np.nonzero(changed)
+                moving = (float(np.median(xs)) * k, float(np.median(ys)) * k)
         _, faces = det.detect(small)
         found = []
         for f in faces if faces is not None else []:
@@ -192,7 +204,7 @@ def track(video: Path):
             else:
                 stable = (len(found), big, big_cx)
         prev_gray = gray
-        samples.append({"t": frame_i / FPS, "shot": shot, "faces": found})
+        samples.append({"t": frame_i / FPS, "shot": shot, "faces": found, "moving": moving})
         frame_i += 1
     cap.release()
     return w, h, samples
@@ -239,6 +251,8 @@ def choose_speaker(samples, w):
 
 JUMPCUT = True  # source.json "jumpcut": false keeps segments whole
 SPLIT = True  # source.json "split": false turns split screens off (over-the-shoulder studios)
+SCREEN = True  # source.json "screen": false keeps faceless shots as a plain centre crop
+DENOISE = False  # source.json "denoise": true cleans hum, hiss and room noise from the speech
 
 
 def smooth_crop(samples, picks, w, h):
@@ -265,10 +279,23 @@ def smooth_crop(samples, picks, w, h):
             if b["cx"] - a["cx"] > w * 0.15 and min(a["fh"], b["fh"]) >= 0.55 * max(a["fh"], b["fh"]):
                 split_shots[shot] = (a, b)
 
-    keys, last = [], {"cx": w / 2, "cy": h * 0.42, "fh": h * 0.3}
+    # Screen recordings, slides and b-roll: faces in under 20% of a shot's samples. They show a wider
+    # window over a blurred fill and follow what moves (cursor, typing) instead of a face.
+    screen_shots = {shot for shot, ss in shots.items() if SCREEN and len(ss) >= 8 and shot not in split_shots
+                    and sum(1 for s in ss if s["faces"]) < 0.2 * len(ss)}
+
+    keys, last, spot = [], {"cx": w / 2, "cy": h * 0.42, "fh": h * 0.3}, None
     for s, p in zip(samples, picks):
         target = p or last
+        if s["shot"] in screen_shots:
+            if spot is None or spot["shot"] != s["shot"]:
+                spot = {"shot": s["shot"], "cx": w / 2, "cy": h / 2, "fh": h * 0.3}
+            if s.get("moving"):
+                spot["cx"], spot["cy"] = s["moving"]
+            target = spot
         kf = {"t": round(s["t"], 3), "shot": s["shot"], "cx": target["cx"], "cy": target["cy"], "fh": target["fh"]}
+        if s["shot"] in screen_shots:
+            kf["mode"] = "screen"
         if s["shot"] in split_shots:
             a, b = split_shots[s["shot"]]
             kf["mode"] = "split"
@@ -278,8 +305,10 @@ def smooth_crop(samples, picks, w, h):
         last = target
     for i in range(1, len(keys)):
         if keys[i]["shot"] == keys[i - 1]["shot"]:
+            # Screens pan slowly so text stays readable while the view drifts after the cursor.
+            ease = 0.06 if keys[i].get("mode") == "screen" else 0.25
             for f in ("cx", "cy", "fh"):
-                keys[i][f] = keys[i - 1][f] + 0.25 * (keys[i][f] - keys[i - 1][f])
+                keys[i][f] = keys[i - 1][f] + ease * (keys[i][f] - keys[i - 1][f])
     for kf in keys:
         kf.update(cx=round(kf["cx"], 1), cy=round(kf["cy"], 1), fh=round(kf["fh"], 1))
     return keys
@@ -308,8 +337,8 @@ def shot_people(samples, keys, w):
 
 
 def branding(source):
-    """Optional on-screen branding from source.json: "watermark" text and an "endCard" {title, handle}."""
-    return {k: source[k] for k in ("watermark", "endCard") if source.get(k)}
+    """Optional on-screen look from source.json: "watermark" text, an "endCard" {title, handle}, "captionStyle"."""
+    return {k: source[k] for k in ("watermark", "endCard", "captionStyle") if source.get(k)}
 
 
 def main():
@@ -322,8 +351,10 @@ def main():
     folder = Path(args.folder)
     moment = json.loads((folder / "moments.json").read_text())[args.index]
     source = json.loads((folder / "source.json").read_text())
-    global SPLIT, JUMPCUT
+    global SPLIT, JUMPCUT, SCREEN, DENOISE
     SPLIT = source.get("split", True)
+    SCREEN = source.get("screen", True)
+    DENOISE = source.get("denoise", False)
     JUMPCUT = source.get("jumpcut", True)
     words_all = [w for s in json.loads((folder / "words.json").read_text())["segments"] for w in s["words"]]
     clip_id = args.id or f"{folder.name}-{args.index + 1}"

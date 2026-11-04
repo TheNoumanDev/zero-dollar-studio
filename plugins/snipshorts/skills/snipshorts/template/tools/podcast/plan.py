@@ -60,6 +60,13 @@ SCHEMA = {
 }
 
 
+def house_style(root: Path) -> str:
+    """The user's standing notes (podcasts/STYLE.md, e.g. "fewer zooms"), added to every prompt."""
+    f = root / "podcasts" / "STYLE.md"
+    notes = f.read_text().strip() if f.exists() else ""
+    return f"\n\nHOUSE STYLE (the user's standing notes; they override the rules above):\n{notes}\n" if notes else ""
+
+
 def main():
     clip_id = sys.argv[1]
     d = ROOT / "public/podcast-shorts" / clip_id
@@ -75,6 +82,7 @@ def main():
                 f"Put no graphics before {clip['teaserEnd'] + 1.8:.1f} s; a punch zoom on the teaser's key word is welcome."
                 if clip.get("teaserEnd") else ""),
     )
+    prompt += house_style(ROOT)
     raw = llm.ask(prompt, SCHEMA, timeout=600)
 
     n = len(words)

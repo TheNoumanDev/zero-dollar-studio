@@ -237,6 +237,8 @@ No, on purpose. It writes the video, title, caption and tags to a folder, and yo
 - [x] make-video, snipshorts, cartoonsmith v0.1
 - [x] Works in other agents through `npx skills add`
 - [x] make-video: karaoke caption style, smarter caption gap fill with a match-rate report, QA for the Reels right-side button rail
+- [x] snipshorts: scored shortlist you pick from, caption styles (bold, bounce, clean), captions that avoid faces, screen recordings that follow the cursor, noise removal, per-platform encodes, house-style notes
+- [ ] **edit-footage:** turn your own talking-head recording into a reel (best take of each line, no pauses or false starts)
 - [ ] **make-video v0.2:** optional AI talking face (JoyVASA + LivePortrait, no non-commercial face models)
 - [ ] Full runs tested in Codex and Gemini CLI
 - [ ] snipshorts: cover maker and upscaling

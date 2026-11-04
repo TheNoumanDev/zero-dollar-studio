@@ -12,7 +12,7 @@ import {
 } from "remotion";
 import { FONTS } from "../../config/theme";
 import { useScale } from "../../lib/animation";
-import { cropAt, framePanel, frameSource, jumpZoomAt, zoomAt } from "./camera";
+import { cropAt, framePanel, frameScreen, frameSource, jumpZoomAt, zoomAt } from "./camera";
 import { Captions } from "./Captions";
 import { NameTags } from "./NameTags";
 import { Graphics } from "./Overlays";
@@ -102,6 +102,7 @@ export const PodcastShort: React.FC<PodcastShortProps> = ({
   plan,
   watermark,
   endCard,
+  captionStyle,
   qa,
 }) => {
   const frame = useCurrentFrame();
@@ -116,6 +117,25 @@ export const PodcastShort: React.FC<PodcastShortProps> = ({
   const key = cropAt(clip.crop, t);
   const split = key.mode === "split" && key.a && key.b;
   const video = staticFile(`${base(clipId)}/source.mp4`);
+
+  // Captions sit at 66% height, but never on a face (they move below the chin, or above the head when the
+  // face fills the lower frame) and never on a screen recording's text (they go under the window).
+  const captionY = (() => {
+    const lowest = height * 0.7;
+    if (split) return height * 0.455;
+    if (key.mode === "screen") {
+      const sc = frameScreen(clip, width, height, t, 1);
+      return Math.min(lowest, sc.box.top + sc.box.h + 24 * u);
+    }
+    if (!key.fh) return height * 0.66;
+    const src = frameSource(clip, width, height, t, zoom);
+    const s = src.h / clip.height;
+    const chin = src.top + (key.cy + key.fh * 0.75) * s;
+    const brow = src.top + (key.cy - key.fh * 0.7) * s;
+    if (chin + 24 * u <= lowest) return Math.max(height * 0.66, chin + 24 * u);
+    const above = brow - 340 * u;
+    return above >= height * 0.14 ? above : lowest;
+  })();
   // Tiny flash on punch-ins sells the cut.
   const flash = Math.max(
     0,
@@ -174,6 +194,48 @@ export const PodcastShort: React.FC<PodcastShortProps> = ({
                 </div>
               );
             })
+          : key.mode === "screen"
+            ? (() => {
+                // Screen recording: a wide, readable window that follows the cursor, over a blurred fill.
+                const sc = frameScreen(clip, width, height, t, zoom);
+                return (
+                  <>
+                    <OffthreadVideo
+                      src={video}
+                      muted
+                      style={{
+                        position: "absolute",
+                        height,
+                        width: (height * clip.width) / clip.height,
+                        left: (width - (height * clip.width) / clip.height) / 2,
+                        filter: "blur(40px) brightness(0.4)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        top: sc.box.top,
+                        width,
+                        height: sc.box.h,
+                        overflow: "hidden",
+                        boxShadow: `0 ${20 * u}px ${60 * u}px rgba(0,0,0,0.6)`,
+                      }}
+                    >
+                      <OffthreadVideo
+                        src={video}
+                        style={{
+                          position: "absolute",
+                          left: sc.left,
+                          top: sc.top,
+                          width: sc.w,
+                          height: sc.h,
+                        }}
+                      />
+                    </div>
+                  </>
+                );
+              })()
           : (() => {
               const src = frameSource(clip, width, height, t, zoom);
               return (
@@ -228,7 +290,8 @@ export const PodcastShort: React.FC<PodcastShortProps> = ({
             <Captions
               words={clip.words}
               emphasis={plan.emphasis}
-              y={split ? height * 0.455 : height * 0.66}
+              y={captionY}
+              style={captionStyle ?? clip.captionStyle}
               qa={qa}
             />
           )}

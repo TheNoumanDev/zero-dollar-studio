@@ -43,6 +43,9 @@ Make `podcasts/<slug>/source.json` (copy `podcasts/example/source.json`). The sl
 | `language` | `en` by default. Anything else turns on `romanize.py` (captions in Latin script). |
 | `jumpcut` | `false` keeps every frame (TV or already-edited footage, shouting matches). |
 | `split` | `false` turns off split screens (over-the-shoulder studios). |
+| `screen` | `false` keeps faceless shots as a plain centre crop. By default a shot with no face (screen recording, slides, b-roll) shows a wide, readable window that follows the cursor, over a blurred fill. |
+| `denoise` | `true` cleans hum, hiss and room noise from the speech (ffmpeg's built-in `afftdn`, no model). For phone or laptop-mic recordings. |
+| `captionStyle` | `bold` (default: heavy caps, yellow active word), `bounce` (comic font, words spring in, new colour each page: funny clips), or `clean` (sentence case, soft fade: interviews, serious talk). |
 | `grade` | Optional ffmpeg filter chain applied once at the cut, e.g. `eq=contrast=1.06:saturation=1.1`. |
 | `watermark` | Optional text (your handle), top-left. Empty means none. |
 | `endCard` | Optional `{"title": "Follow for more", "handle": "@you"}` end screen (3.5 s). It breaks the Shorts loop, so leave it `null` for loop-first posts. |
@@ -64,7 +67,9 @@ Then get word timestamps into `podcasts/<slug>/words.json`, one of two ways:
 One command runs moments → prep → plan → SFX → render → -14 LUFS master:
 
 ```bash
+PICK=10 tools/podcast/make-shorts.sh podcasts/<slug>     # shortlist 10 scored moments, then stop (see below)
 tools/podcast/make-shorts.sh podcasts/<slug> 5          # 5 clips
+PLATFORMS="yt ig tiktok" …                               # also <id>.yt.mp4, .ig.mp4, .tiktok.mp4 with each app's encode settings
 POST=1 tools/podcast/make-shorts.sh podcasts/<slug> 5   # …plus the ready-to-post folder
 SAMPLE=10 SKIP_MOMENTS=1 ONLY=1 tools/podcast/make-shorts.sh podcasts/<slug> 5   # first 10 s of clip 1, for a quick look
 SKIP_MOMENTS=1 ONLY=2 …                                 # redo one clip
@@ -87,16 +92,20 @@ SKIP_MOMENTS=1 RENDER_ONLY=1 …                          # re-render everything
 
 Clip ids are `<slug>-<n>`. `make-shorts.sh` adds them to `src/compositions/PodcastShort/clips.ts`.
 
+**Let the user choose (recommended).** Run with `PICK=10` (or `moments.py podcasts/<slug> --shortlist 10`): it writes `moments.candidates.json` and prints a numbered table with the total score and the five sub-scores (hook, standalone, emotion, value, payoff), the times, the title, why it works and its first and last words. Show the user that table and ask which to make. Then `moments.py podcasts/<slug> --keep 2,5,7` (add `--append` to keep earlier picks) writes `moments.json` and adds the cold-open teasers, and `SKIP_MOMENTS=1 make-shorts.sh podcasts/<slug> 3` renders them.
+
 **Review every new moment before rendering.** Print its first and last words. The picker sometimes ends on a setup line or a filler ("right and"), and a teaser can flip the speaker's meaning out of context. Fix it by editing `segments` / `start` / `end` in `moments.json` (snap with `moments.find_phrase`), re-pick a teaser with `moments.py podcasts/<slug> --teaser <n>`, then rerun with `SKIP_MOMENTS=1 ONLY=<n>`. The user may also pick moments themselves from a ranked list; write `moments.json` by hand then.
 
 ## 3. What each piece decides
 
-- **moments.py**: hook in the first sentence, self-contained, ends on the payoff, 20-45 s; never intros, subscribe asks or sponsor reads. The agent returns `first_words`/`last_words`, and the script snaps them to word timestamps (`UNSNAPPED` means check the cut by hand). When the payoff comes too late for one take, a moment has `segments` (setup → turn → payoff, middle skipped); the composition flashes and the SFX whooshes at each splice.
+- **moments.py**: hook in the first sentence, self-contained, ends on the payoff, 20-45 s; never intros, subscribe asks or sponsor reads. Each pick is scored 0-10 on hook (30%), standalone (25%), emotion (20%), value (15%) and payoff (10%), and `score` is the weighted 0-100 total. The agent returns `first_words`/`last_words`, and the script snaps them to word timestamps (`UNSNAPPED` means check the cut by hand). When the payoff comes too late for one take, a moment has `segments` (setup → turn → payoff, middle skipped); the composition flashes and the SFX whooshes at each splice.
 - **Cold open** (on by default): a 2-5 s `teaser` from inside the moment plays first, then a tape rewind ("⏪ HOW IT STARTED") into the story. `--no-teasers` skips it.
 - **prepare.py**: silences over 0.45 s between words shrink to 0.12 s (jump cuts; framing alternates 1.0/1.12 at each cut so they read as edits). Faces come from the YuNet detector every 3rd frame. A shot change is a colour-histogram jump, a whole-frame change, or a face-size change held for 3 samples. A shot with two confident, similar-sized faces for ≥ 60% of it becomes **split** (left person on top). Other shots follow the active speaker (lower-face motion minus head motion). `--retrack` redoes tracking on the existing cut.
 - **plan.py**: every beat is anchored to a word index, so timing is word-accurate. 5-10 zooms (punch/push), 4-7 graphics (kinetic slam, stat, emoji, callout, quote), 8-16 emphasised words, the hook card, and caption `fixes` for misheard words (the original stays in `asr`). The script enforces: nothing over the hook (first 2.6 s) or the rewind, never two graphics at once.
 - **Name tags** (optional): name + role slides in on each person's first appearance. Identity comes from **clothing colour under the face, never face recognition**. Once per source: add `people` (`key`, `name`, `role`) to source.json, run `people.py <clip-id> --sheet out/people.jpg`, look at it, then `people.py <clip-id> --label s0.0=host s3.0=guest`. After that, make-shorts.sh names every shot. Only tag people whose identity the user has confirmed. When unsure, drop the tag.
-- **PodcastShort** (`src/compositions/PodcastShort/`): `camera.ts` (crop, zoom, split panels), `Captions.tsx` (3-word pages, active word yellow, emphasis green and bumped), `Overlays.tsx` (graphics), `Rewind.tsx`, `NameTags.tsx`, `Watermark.tsx`, `EndCard.tsx`, `index.tsx` (layers, hook card, progress bar, SFX). Props `watermark` and `endCard` override source.json for one render.
+- **House style** (`podcasts/STYLE.md`, optional): the user's standing notes, added to the moment and edit-plan prompts, where they override the defaults. When the user gives feedback that should stick ("fewer zooms", "no emojis", "prefer funny moments"), append a one-line note there and say so.
+- **Captions** stay off faces: below the chin, or above the head when the face fills the lower frame. On screen shots they sit under the window.
+- **PodcastShort** (`src/compositions/PodcastShort/`): `camera.ts` (crop, zoom, split panels), `Captions.tsx` (3-word pages, active word yellow, emphasis green and bumped), `Overlays.tsx` (graphics), `Rewind.tsx`, `NameTags.tsx`, `Watermark.tsx`, `EndCard.tsx`, `index.tsx` (layers, hook card, progress bar, SFX). Props `watermark`, `endCard` and `captionStyle` override source.json for one render.
 
 ## 4. Verify before delivering
 

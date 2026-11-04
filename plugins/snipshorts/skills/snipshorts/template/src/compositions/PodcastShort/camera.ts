@@ -69,3 +69,23 @@ export const framePanel = (clip: Clip, face: Face, panelW: number, panelH: numbe
   const top = Math.min(0, Math.max(panelH - h, panelH * faceY - face.cy * s));
   return { left, top, w, h };
 };
+
+/** Share of the source's width a screen shot shows: wide enough to read code or a slide, still full-width on a phone. */
+export const SCREEN_SPAN = 0.55;
+
+/**
+ * A screen-recording shot: a SCREEN_SPAN-wide window of the source, following the crop centre (the cursor),
+ * drawn full-width as a band centred at 40% height. `box` is the band; `left`/`top`/`w`/`h` place the source inside it.
+ */
+export const frameScreen = (clip: Clip, outW: number, outH: number, t: number, zoom: number) => {
+  const k = cropAt(clip.crop, t);
+  const base = outW / (clip.width * SCREEN_SPAN);
+  const s = base * zoom;
+  const w = clip.width * s;
+  const h = clip.height * s;
+  const boxH = clip.height * base;
+  const box = { top: outH * 0.4 - boxH / 2, h: boxH };
+  const left = Math.min(0, Math.max(outW - w, outW / 2 - k.cx * s));
+  const top = Math.min(0, Math.max(boxH - h, boxH / 2 - k.cy * s));
+  return { box, left, top, w, h };
+};

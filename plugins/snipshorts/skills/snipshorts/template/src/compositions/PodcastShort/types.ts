@@ -3,10 +3,13 @@
 
 export type Word = { w: string; s: number; e: number };
 
+/** Caption look: bold (default), bounce (playful), clean (interviews). See Captions.tsx. */
+export type CaptionStyle = "bold" | "bounce" | "clean";
+
 export type Face = { cx: number; cy: number; fh: number };
 
 /** "split" shots show two people stacked: a = left person (top), b = right person (bottom). */
-export type CropKey = { t: number; shot: number; cx: number; cy: number; fh: number; mode?: "single" | "split"; a?: Face; b?: Face };
+export type CropKey = { t: number; shot: number; cx: number; cy: number; fh: number; mode?: "single" | "split" | "screen"; a?: Face; b?: Face };
 
 export type Clip = {
   id: string;
@@ -25,6 +28,8 @@ export type Clip = {
   /** Per shot: who is on screen (single: [who]; split: [top, bottom]). From tools/podcast/people.py. */
   shots?: Shot[];
   people?: Record<string, { name: string; role: string }>;
+  /** From source.json "captionStyle" (prepare.py). */
+  captionStyle?: CaptionStyle;
   /** Optional branding, copied from source.json by prepare.py. */
   watermark?: string;
   endCard?: EndCardText | null;
@@ -33,7 +38,7 @@ export type Clip = {
 /** End screen text, e.g. { title: "Follow for more", handle: "@yourchannel" }. */
 export type EndCardText = { title: string; handle?: string };
 
-export type Shot = { shot: number; mode: "single" | "split"; start: number; end: number; who?: (string | null)[] };
+export type Shot = { shot: number; mode: "single" | "split" | "screen"; start: number; end: number; who?: (string | null)[] };
 
 export type Zoom = { t: number; dur: number; to: number; kind: "punch" | "push" };
 
@@ -60,6 +65,8 @@ export type PodcastShortProps = {
   watermark?: string;
   /** End screen after the clip. Overrides the clip's; unset means no end screen. */
   endCard?: EndCardText | null;
+  /** Caption look; overrides the clip's. */
+  captionStyle?: CaptionStyle;
   /** Outlines captions and graphics for layout QA. */
   qa?: boolean;
 };

@@ -5,6 +5,8 @@
 # Env: SKIP_MOMENTS=1 reuse moments.json · ONLY=2 or ONLY=1,4,5 just those clips · SKIP_PLAN=1 reuse plan.json
 #      RENDER_ONLY=1 just re-render (after composition changes) · SAMPLE=10 render only the first 10 s
 #      POST=1 also write the ready-to-post folder (titles, captions, tags, thumbnail; nothing is uploaded)
+#      PICK=10 shortlist 10 scored moments to choose from, then stop (moments.py --keep 2,5,7 picks them)
+#      PLATFORMS="yt ig tiktok" also write <id>.yt.mp4 etc. with each platform's encode settings
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 FOLDER=${1:?usage: make-shorts.sh podcasts/<slug> [count]}
@@ -23,6 +25,12 @@ step() { printf '\033[36m▶ %s\033[0m\n' "$1"; }
 # Claude Code by default; SNIPSHORTS_LLM=codex|gemini|<command> picks another (see llm.py).
 .venv/bin/python -c "import sys; sys.path.insert(0, 'tools/podcast'); import llm; llm.check()" || exit 1
 
+if [[ -n ${PICK:-} ]]; then
+  step "Agent shortlists $PICK moments"
+  $PY tools/podcast/moments.py "$FOLDER" --shortlist "$PICK"
+  echo "Choose, then: $PY tools/podcast/moments.py $FOLDER --keep 2,5,7 && SKIP_MOMENTS=1 $0 $FOLDER <count>"
+  exit 0
+fi
 if [[ -z ${SKIP_MOMENTS:-} || ! -f $FOLDER/moments.json ]]; then
   step "Claude picks $COUNT moments"
   $PY tools/podcast/moments.py "$FOLDER" --count "$COUNT"
@@ -57,6 +65,17 @@ for i in $(seq 1 "$COUNT"); do
   ffmpeg -y -v error -i "$OUT/$ID.raw.mp4" -c:v copy \
     -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k "$OUT/$ID.mp4"
   rm "${OUT:?}/${ID:?}.raw.mp4"
+  # Per-platform encodes (PLATFORMS="yt ig tiktok"): each app re-compresses less when it gets what it expects.
+  for P in ${PLATFORMS:-}; do
+    case $P in
+      yt) V=(-b:v 12M -maxrate 15M -bufsize 24M); AB=192k ;;
+      ig) V=(-b:v 4500k -maxrate 5000k -bufsize 10000k); AB=128k ;;
+      tiktok) V=(-crf 18 -preset slow); AB=128k ;;
+      *) echo "unknown platform $P (yt, ig, tiktok)"; continue ;;
+    esac
+    ffmpeg -y -v error -i "$OUT/$ID.mp4" -c:v libx264 -profile:v high -level 4.2 -pix_fmt yuv420p "${V[@]}" \
+      -c:a aac -b:a $AB -ar 48000 -movflags +faststart "$OUT/$ID.$P.mp4"
+  done
   # Contact sheet: 6 frames across the clip, for a quick look.
   DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/$ID.mp4")
   ffmpeg -y -v error -i "$OUT/$ID.mp4" -vf "fps=6/$DUR,scale=270:-1,tile=6x1" -frames:v 1 "$OUT/$ID.sheet.png"
