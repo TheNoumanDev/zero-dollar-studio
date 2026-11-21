@@ -1,6 +1,6 @@
 ---
 name: snipshorts
-description: Turn a long podcast, interview or talk (YouTube link or local video) into vertical Shorts/Reels/TikToks for $0, as a free, open-source OpusClip alternative with no watermark. Claude picks 20-45 s hook-first moments, local tools jump-cut dead air and track the active speaker (or split-screen two people), and a Remotion composition adds punch zooms, word-synced keyword captions, motion graphics, a cold-open rewind and SFX, then writes ready-to-post titles, captions and tags. Use when the user asks to clip, cut or make shorts/reels from a podcast, interview, talk, stream or other long video. An add-on to a make-video project; runs locally on macOS.
+description: Turn a long podcast, interview, talk, Twitch/YouTube stream or gameplay video (GTA 6, GTA V RP, Fortnite) (YouTube link or local video) into vertical Shorts/Reels/TikToks for $0, as a free, open-source OpusClip alternative with no watermark. Claude picks 20-45 s hook-first moments, local tools jump-cut dead air and track the active speaker (or split-screen two people), and a Remotion composition adds punch zooms, word-synced keyword captions, motion graphics, a cold-open rewind and SFX, then writes ready-to-post titles, captions and tags. Use when the user asks to clip, cut or make shorts/reels from a podcast, interview, talk, stream, gaming/GTA clips or other long video. An add-on to a make-video project; runs locally on macOS.
 license: MIT
 author: TheNoumanDev (https://github.com/TheNoumanDev)
 ---

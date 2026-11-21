@@ -74,6 +74,7 @@ Doing the same with paid tools costs about **$50 a month**, and the free tiers s
 | You'd normally pay for | Paid tool (cheapest plan) | Here |
 |---|---|---|
 | Podcast → Shorts clipping | OpusClip: $15/mo (free plan is watermarked) | **snipshorts**: $0, no watermark |
+| GTA / gaming stream → clips | paid AI clippers with credits or watermarks | **snipshorts**: $0, no watermark |
 | Cutting your own takes into a reel | an editor, or hours by hand | **edit-footage**: $0, best take of each line |
 | Cloning your voice | ElevenLabs: $6/mo (Starter) | **Chatterbox**, on your Mac: $0 |
 | A talking AI presenter | HeyGen: $29/mo (free plan is watermarked) | **JoyVASA + LivePortrait**: $0 *(make-video v0.2)* |
@@ -103,7 +104,7 @@ Your coding agent does the thinking: script, fact checks, moment picking, edit p
 | Skill | What it does |
 |---|---|
 | 🎥 [**make-video**](plugins/make-video/) | Idea → script → voice → captions → music → Remotion render → QA → ready to post |
-| ✂️ [**snipshorts**](plugins/snipshorts/) | A podcast or interview link → vertical Shorts with the speaker tracked, captions, SFX and posting copy. **A free, open-source OpusClip alternative with no watermark** |
+| ✂️ [**snipshorts**](plugins/snipshorts/) | A podcast or interview link → vertical Shorts with the speaker tracked, captions, SFX and posting copy. **A free, open-source OpusClip alternative with no watermark.** Also cuts gaming streams and gameplay with commentary (GTA 6, GTA V RP, Fortnite, Minecraft) into vertical clips |
 | 🎬 [**edit-footage**](plugins/edit-footage/) | Your own raw talking-head recording → a finished reel: the best take of every line, false starts, "um"s and pauses cut, face framed, captions, zooms and SFX |
 | 🎨 [**cartoonsmith**](plugins/cartoonsmith/) | Voiced cartoon episodes with recurring characters: talking rigs from your own character art, lip sync, captions and music |
 | 📘 [**guides/**](guides/) | Free PDF guides from the videos: Claude desktop cheat sheet, the $0 video stack, the AI avatar build, the daily pipeline |
