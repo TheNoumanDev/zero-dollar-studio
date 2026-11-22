@@ -1,0 +1,14 @@
+{
+  "name": "podcast-summary",
+  "displayName": "podcast-summary",
+  "description": "A podcast or interview link → an animated 2-6 min summary (and/or a 60 s Short) in the speakers' real voices: whole-sentence clips cut from the episode, each speaker's real photo animated into a talking face from their own voice (or a code-drawn mascot), word-synced captions, topic titles, stat cards, a -14 LUFS master, a thumbnail and posting copy. Free and local. Add-on to make-video and snipshorts.",
+  "version": "0.1.0",
+  "author": {
+    "name": "TheNoumanDev",
+    "url": "https://github.com/TheNoumanDev"
+  },
+  "homepage": "https://github.com/TheNoumanDev/zero-dollar-studio/tree/main/plugins/podcast-summary",
+  "repository": "https://github.com/TheNoumanDev/zero-dollar-studio",
+  "license": "MIT",
+  "keywords": ["podcast-summary", "video-summary", "podcast-recap", "animated-podcast", "talking-head", "ai-face", "liveportrait", "joyvasa", "remotion", "youtube", "free"]
+}

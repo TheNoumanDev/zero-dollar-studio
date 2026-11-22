@@ -1,0 +1,6 @@
+# Extra Python packages for podcast-summary, on top of make-video's and snipshorts' (same .venv).
+rembg               # MIT. Cuts each person out of a frame (photomouths.py); downloads the isnet-general-use model (~180 MB, Apache-2.0) on first use
+onnxruntime         # MIT. Runs rembg's model
+scipy               # BSD-3. Cleans up the cut-out mask
+pillow              # MIT-CMU
+soundfile           # BSD-3

@@ -19,11 +19,14 @@ The code in this repository is MIT-licensed (see [LICENSE](LICENSE)). The tools 
 | [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) | cartoonsmith | MIT (bundled components listed in its LICENSE.md) | Mouth shapes. Downloaded by `tools/setup_cartoon.sh`; the macOS build is x86_64, so Apple Silicon uses Rosetta 2. |
 | [Pillow](https://github.com/python-pillow/Pillow) | cartoonsmith | MIT-CMU (HPND) | Sheet splitting and placeholder art. |
 | [Real-ESRGAN ncnn](https://github.com/xinntao/Real-ESRGAN) and its x4plus models | cartoonsmith (optional) | BSD-3-Clause | Upscaling cut-outs (`WITH_UPSCALE=1`). |
-| [rembg](https://github.com/danielgatis/rembg) with isnet-general-use / U-2-Net | cartoonsmith (optional) | MIT (models Apache-2.0) | Background removal for sheets with white clothes. |
+| [rembg](https://github.com/danielgatis/rembg) with isnet-general-use / U-2-Net | cartoonsmith (optional), podcast-summary | MIT (models Apache-2.0) | Background removal for sheets with white clothes; cutting speakers out of episode frames. |
+| [JoyVASA](https://github.com/jdh-algo/JoyVASA) code and [weights](https://huggingface.co/jdh-algo/JoyVASA) (JD Health) | podcast-summary (optional) | MIT | Audio → face motion for the AI talking face. Cloned at a pinned commit and patched by `tools/summary/setup-aiface.sh`. |
+| [LivePortrait](https://github.com/KwaiVGI/LivePortrait) [weights](https://huggingface.co/KwaiVGI/LivePortrait) (Kuaishou) | podcast-summary (optional) | MIT | Renders the motion onto the photo. Only the base, retargeting and landmark models are downloaded, not its `insightface/` folder. |
+| [chinese-hubert-base](https://huggingface.co/TencentGameMate/chinese-hubert-base) (TencentGameMate) | podcast-summary (optional) | MIT | JoyVASA's audio encoder. |
 | [Indic Parler-TTS](https://huggingface.co/ai4bharat/indic-parler-tts) (AI4Bharat), `parler-tts`, flan-t5-large tokenizer | cartoonsmith (optional) | Apache-2.0 | Hindi and other Indian-language voices (`WITH_PARLER=1`). Gated: accept the terms on Hugging Face once. |
 | [DeepFilterNet](https://github.com/Rikorose/DeepFilterNet), descript-audio-codec, transformers, torchaudio | cartoonsmith (optional) | MIT / Apache-2.0 / BSD-2-Clause | Parler environment and denoising. |
 
 ## Not used, on purpose
 
-- **InsightFace models** (e.g. `buffalo_l`) are licensed for non-commercial research only. None of these plugins download or use them. If a future face step needs a face detector, it uses a permissively licensed one.
+- **InsightFace models** (e.g. `buffalo_l`) are licensed for non-commercial research only. None of these plugins download or use them. LivePortrait normally loads them; podcast-summary's `joyvasa.patch` replaces that detector with a fixed box on a pre-cropped (YuNet) face, and `setup-aiface.sh` never downloads them.
 - **macOS `say` voices** are not used as voice references: Apple's licence doesn't allow commercial use of their output.

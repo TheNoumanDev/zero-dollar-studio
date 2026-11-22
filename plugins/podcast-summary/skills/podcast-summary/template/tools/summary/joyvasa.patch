@@ -1,0 +1,185 @@
+diff --git a/src/live_portrait_wmg_pipeline.py b/src/live_portrait_wmg_pipeline.py
+index bc6460c..bce4ea3 100644
+--- a/src/live_portrait_wmg_pipeline.py
++++ b/src/live_portrait_wmg_pipeline.py
+@@ -1,3 +1,4 @@
++import numpy as np
+ # coding: utf-8
+ 
+ """
+@@ -90,6 +91,22 @@ class LivePortraitPipeline(object):
+         if inf_cfg.flag_pasteback and inf_cfg.flag_do_crop and inf_cfg.flag_stitching:
+             mask_ori_float = prepare_paste_back(inf_cfg.mask_crop, crop_info['M_c2o'], dsize=(source_rgb_lst[0].shape[1], source_rgb_lst[0].shape[0]))
+ 
++        ######## speech gate (zero-dollar-studio patch) ########
++        # JoyVASA keeps moving the lips through short pauses. Gate the lip keypoints with
++        # voice activity: 1 while speaking, easing to 0 (source mouth = closed/rest) in
++        # silences. Head pose, brows and eyes keep their generated motion.
++        import librosa
++        _wav, _sr = librosa.load(args.audio, sr=16000)
++        _hop = int(_sr / inf_cfg.output_fps)
++        _rms = np.array([np.sqrt(np.mean(_wav[k:k + _hop] ** 2)) if k < len(_wav) else 0.0 for k in range(0, n_frames * _hop, _hop)])
++        _voiced = (_rms > max(_rms.max(), 1e-6) * 0.08).astype(np.float32)
++        speech_gate = np.zeros(n_frames, np.float32)
++        level = 0.0
++        for k in range(n_frames):  # fast attack (~2 frames), softer release (~4 frames)
++            target = _voiced[k] if k < len(_voiced) else 0.0
++            level += (target - level) * (0.55 if target > level else 0.3)
++            speech_gate[k] = level
++
+         ######## animate ########
+         for i in track(range(n_frames), description='🚀Animating Image with Generated Motions...', total=n_frames):
+             x_d_i_info = driving_template_dct['motion'][i]
+@@ -110,8 +127,17 @@ class LivePortraitPipeline(object):
+             if inf_cfg.animation_region == "all" or inf_cfg.animation_region == "exp":
+                 # 相对
+                 delta_new = x_s_info['exp'] + (x_d_i_info['exp'] - x_d_0_info['exp'])
++                g = float(speech_gate[i])
+                 for lip_idx in [6, 12, 14, 17, 19, 20]:
+-                    delta_new[:, lip_idx, :] = x_d_i_info['exp'][:, lip_idx, :]
++                    delta_new[:, lip_idx, :] = x_s_info['exp'][:, lip_idx, :] * (1 - g) + x_d_i_info['exp'][:, lip_idx, :] * g
++                # zero-dollar-studio patch: AIFACE_CALM=0..1 scales the generated eye/brow/cheek motion (real-photo faces went
++                # wide-eyed). Lips keep full motion; 1.0 (default) = unchanged.
++                calm = float(os.environ.get("AIFACE_CALM", "1"))
++                if calm < 1:
++                    lips = [6, 12, 14, 17, 19, 20]
++                    keep = delta_new[:, lips, :].clone()
++                    delta_new = x_s_info['exp'] + (delta_new - x_s_info['exp']) * calm
++                    delta_new[:, lips, :] = keep
+                 # # 绝对
+                 # delta_new = x_s_info['exp'].clone()
+                 # for idx in [1,2,6,11,12,13,14,15,16,17,18,19,20]:
+diff --git a/src/modules/common.py b/src/modules/common.py
+index 207ffa2..8c72a7c 100644
+--- a/src/modules/common.py
++++ b/src/modules/common.py
+@@ -24,7 +24,10 @@ class PositionalEncoding(nn.Module):
+         return self.dropout(x)
+ 
+ 
+-def enc_dec_mask(T, S, frame_width=2, expansion=0, device='cuda'):
++def enc_dec_mask(T, S, frame_width=2, expansion=0, device=None):
++    # zero-dollar-studio patch: was hard-coded 'cuda'; pick the available accelerator.
++    if device is None:
++        device = 'cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu')
+     mask = torch.ones(T, S)
+     for i in range(T):
+         mask[i, max(0, (i - expansion) * frame_width):(i + expansion + 1) * frame_width] = 0
+diff --git a/src/utils/cropper.py b/src/utils/cropper.py
+index 97e26c7..4370166 100644
+--- a/src/utils/cropper.py
++++ b/src/utils/cropper.py
+@@ -38,6 +38,25 @@ class Trajectory:
+     frame_rgb_crop_lst: Union[Tuple, List, np.ndarray] = field(default_factory=list)  # frame crop list
+ 
+ 
++class _FixedBoxFace:
++    """Stand-in for an InsightFace detection: a fixed face box in a pre-cropped square.
++
++    LivePortrait only uses the detector's 106 points as a starting region for its own
++    (MIT) landmark model, which then finds the real landmarks. Our sources and driving
++    clips are face-centred squares, so a fixed box (x 22-78%, y 18-88%) is enough.
++    """
++
++    def __init__(self, img):
++        h, w = img.shape[:2]
++        xs = np.linspace(0.22 * w, 0.78 * w, 106)
++        ys = np.concatenate([np.linspace(0.18 * h, 0.88 * h, 53), np.linspace(0.88 * h, 0.18 * h, 53)])
++        self.landmark_2d_106 = np.stack([xs, ys], axis=1).astype(np.float32)
++
++
++def _fixed_box_faces(img_bgr):
++    return [_FixedBoxFace(img_bgr)]
++
++
+ class Cropper(object):
+     def __init__(self, **kwargs) -> None:
+         self.crop_cfg: CropConfig = kwargs.get("crop_cfg", None)
+@@ -60,13 +79,13 @@ class Cropper(object):
+             except:
+                     device = "cuda"
+                     face_analysis_wrapper_provider = ["CUDAExecutionProvider"]
+-        self.face_analysis_wrapper = FaceAnalysisDIY(
+-                    name="buffalo_l",
+-                    root=self.crop_cfg.insightface_root,
+-                    providers=face_analysis_wrapper_provider,
+-                )
+-        self.face_analysis_wrapper.prepare(ctx_id=device_id, det_size=(512, 512), det_thresh=self.crop_cfg.det_thresh)
+-        self.face_analysis_wrapper.warmup()
++        # zero-dollar-studio patch: InsightFace models are non-commercial. We never load them;
++        # sources are pre-cropped (flag_do_crop=False) and only LivePortrait's own MIT
++        # landmark model is used. Any code path that needs face detection raises.
++        class _NoFaceDetector:
++            def __getattr__(self, name):
++                raise RuntimeError("InsightFace disabled (non-commercial license). Use flag_do_crop=False with a pre-cropped source.")
++        self.face_analysis_wrapper = _NoFaceDetector()
+ 
+         self.human_landmark_runner = HumanLandmark(
+             ckpt_path=self.crop_cfg.landmark_ckpt_path,
+@@ -152,11 +171,7 @@ class Cropper(object):
+ 
+     def calc_lmk_from_cropped_image(self, img_rgb_, **kwargs):
+         direction = kwargs.get("direction", "large-small")
+-        src_face = self.face_analysis_wrapper.get(
+-            contiguous(img_rgb_[..., ::-1]),  # convert to BGR
+-            flag_do_landmark_2d_106=True,
+-            direction=direction,
+-        )
++        src_face = _fixed_box_faces(img_rgb_)
+         if len(src_face) == 0:
+             log("No face detected in the source image.")
+             return None
+@@ -207,12 +222,10 @@ class Cropper(object):
+                 vy_ratio=crop_cfg.vy_ratio,
+                 flag_do_rot=crop_cfg.flag_do_rot,
+             )
+-            lmk = self.human_landmark_runner.run(frame_rgb, lmk)
+-            ret_dct["lmk_crop"] = lmk
+ 
+             # update a 256x256 version for network input
+             ret_dct["img_crop_256x256"] = cv2.resize(ret_dct["img_crop"], (256, 256), interpolation=cv2.INTER_AREA)
+-            ret_dct["lmk_crop_256x256"] = ret_dct["lmk_crop"] * 256 / crop_cfg.dsize
++            ret_dct["lmk_crop_256x256"] = ret_dct["pt_crop"] * 256 / crop_cfg.dsize
+ 
+             trajectory.frame_rgb_crop_lst.append(ret_dct["img_crop_256x256"])
+             trajectory.lmk_crop_lst.append(ret_dct["lmk_crop_256x256"])
+@@ -291,11 +304,7 @@ class Cropper(object):
+ 
+         for idx, frame_rgb_crop in enumerate(driving_rgb_crop_lst):
+             if idx == 0 or trajectory.start == -1:
+-                src_face = self.face_analysis_wrapper.get(
+-                    contiguous(frame_rgb_crop[..., ::-1]),  # convert to BGR
+-                    flag_do_landmark_2d_106=True,
+-                    direction=direction,
+-                )
++                src_face = _fixed_box_faces(frame_rgb_crop)
+                 if len(src_face) == 0:
+                     log(f"No face detected in the frame #{idx}")
+                     raise Exception(f"No face detected in the frame #{idx}")
+diff --git a/src/utils/filter.py b/src/utils/filter.py
+index 8dea9bb..92ba7ca 100644
+--- a/src/utils/filter.py
++++ b/src/utils/filter.py
+@@ -5,7 +5,7 @@ import numpy as np
+ from pykalman import KalmanFilter
+ PI = np.pi
+ 
+-device = "cuda"
++device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")  # zero-dollar-studio patch
+ def get_rotation_matrix(pitch_, yaw_, roll_):
+     """ the input is in degree
+     """
+diff --git a/src/utils/helper.py b/src/utils/helper.py
+index 1b756b4..b1f952c 100644
+--- a/src/utils/helper.py
++++ b/src/utils/helper.py
+@@ -160,7 +160,8 @@ def load_model(ckpt_path, model_config, device, model_type):
+     elif model_type == 'motion_generator':
+         model_data = torch.load(ckpt_path, map_location=device)
+         model_args = NullableArgs(model_data['args'])
+-        model = DitTalkingHead(motion_feat_dim=model_args.motion_feat_dim, 
++        model = DitTalkingHead(device=device,  # zero-dollar-studio patch: default was 'cuda'
++                               motion_feat_dim=model_args.motion_feat_dim, 
+                                n_motions=model_args.n_motions, 
+                                n_prev_motions=model_args.n_prev_motions,
+                                feature_dim=model_args.feature_dim,

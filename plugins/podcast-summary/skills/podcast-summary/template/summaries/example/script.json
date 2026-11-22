@@ -1,0 +1,76 @@
+{
+  "note": "Example only: copy to summaries/<slug>/script.json and replace every value. Times are seconds in source.mp4.",
+  "source": "podcasts/<slug>/source.mp4",
+  "words": "podcasts/<slug>/words.json",
+  "lang": "en",
+  "checkLang": "en",
+  "cast": {
+    "host": {
+      "name": "HOST NAME",
+      "tint": "#7CF29A",
+      "look": { "skin": "#000", "hair": "#000", "style": "short", "top": "#000", "photo": { "src": "summary/photos/<slug>/host", "w": 900, "h": 980, "levels": 4 } }
+    },
+    "guest": {
+      "name": "GUEST NAME",
+      "tint": "#6EC8FF",
+      "look": { "skin": "#C68A62", "hair": "#1B1310", "style": "curly", "beard": "stubble", "top": "#2E3A59", "topStyle": "shirt" }
+    }
+  },
+  "listener": "host",
+  "faces": "summary/faces/<slug>",
+  "intro": 4.0,
+  "introShort": 2.8,
+  "stillLabel": "📸 REAL MOMENT · SHOW NAME",
+  "host": null,
+  "handle": "@yourchannel",
+  "synthetic": true,
+  "fix": [["Chat GPT", "ChatGPT"]],
+  "title": "The Guest's Big Idea",
+  "subtitle": "Guest Name × Host Name, animated",
+  "shortTitle": "The Guest's Big Idea",
+  "shortSubtitle": "in 60 seconds",
+  "thumb": "summarythumb-<slug>",
+  "endNote": { "title": "Full episode:", "accent": "Show Name", "items": ["Guest Name on Show Name"] },
+  "scenes": [
+    {
+      "id": "hook",
+      "short": true,
+      "shortLines": [0, 1],
+      "topic": "The *one* question",
+      "context": "One line of context for viewers who haven't seen the episode.",
+      "react": "laugh",
+      "comment": "your reaction, as text 😅",
+      "stillAt": 12.0,
+      "lines": [
+        ["host", 1.7, 12.7],
+        ["guest", 12.9, 18.4, "Optional caption override, word for word as spoken."]
+      ]
+    },
+    {
+      "id": "idea",
+      "short": true,
+      "topic": "Why it *works*",
+      "card": { "kind": "stat", "label": "Hours of sleep", "big": "8", "sub": "what the guest recommends", "color": "yellow", "line": 0, "at": 1.0 },
+      "react": "thinking",
+      "cues": [[1, 2.0, "shocked", "wait, what?!"]],
+      "lines": [
+        ["guest", 146.8, 153.8],
+        ["guest", 156.9, 162.9]
+      ]
+    }
+  ],
+  "post": {
+    "youtube_title": "The Guest's Big Idea, animated #podcast #summary",
+    "youtube_description": "Hook line.\nWhat the video covers.\nClips from Show Name with Guest Name (full episode on their channel). Faces animated with AI.\nA question for the comments?\n#podcast #summary",
+    "youtube_tags": ["guest name", "show name", "podcast summary"],
+    "instagram_caption": "Hook line\n\n#podcast #summary",
+    "pinned_comment": "What did you think? Full episode on Show Name."
+  },
+  "short_post": {
+    "youtube_title": "The guest's one rule (Show Name) #shorts #podcast",
+    "youtube_description": "",
+    "youtube_tags": ["guest name", "show name"],
+    "instagram_caption": "Hook line (via Show Name)\n\n#podcast #shorts",
+    "pinned_comment": "From Show Name with Guest Name. Would you try it?"
+  }
+}
