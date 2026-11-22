@@ -25,7 +25,7 @@
   </a>
   <br>
   <sub>▶ <a href="https://www.youtube.com/watch?v=CKhU8AHQ6N4"><b>I make these AI videos for $0: my full free stack, explained</b></a> · <a href="https://www.youtube.com/shorts/1wMujOBFRD4">Short version</a><br>
-  The script, voice, captions, music and edit were made with these skills; the AI face step lands in make-video v0.2.</sub>
+  The script, voice, captions, music and edit were made with these skills; the AI talking face now ships in podcast-summary.</sub>
 </p>
 
 <table>
@@ -78,7 +78,7 @@ Doing the same with paid tools costs about **$50 a month**, and the free tiers s
 | Cutting your own takes into a reel | an editor, or hours by hand | **edit-footage**: $0, best take of each line |
 | An animated podcast summary video | an editor and an AI avatar tool, or days by hand | **podcast-summary**: $0, real voices, AI-animated faces |
 | Cloning your voice | ElevenLabs: $6/mo (Starter) | **Chatterbox**, on your Mac: $0 |
-| A talking AI presenter | HeyGen: $29/mo (free plan is watermarked) | **JoyVASA + LivePortrait**: $0 *(make-video v0.2)* |
+| A talking AI presenter | HeyGen: $29/mo (free plan is watermarked) | **JoyVASA + LivePortrait**: $0 *(podcast-summary; make-video v0.2 next)* |
 | Captions, music, editing | an editor subscription, or hours by hand | **make-video**: $0, automatic |
 
 <sub>Prices from each tool's pricing page, checked 30 Oct 2026. Paid tools are faster to start and run on any computer; this repo needs a Mac with Apple Silicon and some patience on the first setup.</sub>
@@ -216,8 +216,9 @@ snipshorts, cartoonsmith, edit-footage and podcast-summary are add-ons: they cop
 | Captions | Whisper |
 | Music + SFX | MIDI written as code → FluidSynth |
 | Speaker framing | YuNet |
+| Cut-outs | rembg |
 | Lip sync | Rhubarb |
-| AI face | JoyVASA + LivePortrait *(coming in make-video v0.2)* |
+| AI face | JoyVASA + LivePortrait, InsightFace switched off *(podcast-summary; make-video v0.2 next)* |
 
 ## ❓ FAQ
 
